@@ -1,0 +1,217 @@
+{
+  "copied_at_local_date": "2026-10-27",
+  "source_repository": "https://github.com/KEYUR141/Oral-Cancer-X-AI-Integrated-Solution",
+  "source_commit": "26749ed838fdcade14307e6314f3abf20543f404",
+  "authorization": "Participant explicitly requested copying their local project into Oral-lens; this does not establish organizer submission approval or third-party asset redistribution rights.",
+  "code_and_static_files": [
+    {
+      "path": "app/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app/llm.py",
+      "source_sha256": "dae5b03924e949a71e455718bc42a4993ab331cf499bb3e221dc64feed4f277b",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "9bdd27939a4c54aa020938e8513389e3f4616d459d175b21d9a0ff6f51bcb454"
+    },
+    {
+      "path": "app/main.py",
+      "source_sha256": "7ac5271f430f5ef158d20253969502bc0bcd971860665ce334c950b87cff7b93",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "464516c42492003572ecc476948d6ab1c34b672dac2a33f8424528dd85f200f9"
+    },
+    {
+      "path": "app/retrieval.py",
+      "source_sha256": "c3f261826775b20255d7c2ac45a7980da44662febe76445a7d300290c463ec13",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "c3f261826775b20255d7c2ac45a7980da44662febe76445a7d300290c463ec13"
+    },
+    {
+      "path": "app/visualize.py",
+      "source_sha256": "a0fe15f95eab1a3c2e6afea39df60212d9865ca46ac9f507deb86039cd83494d",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "39090492513d40d20dcd544166df3dc1497f585bda63bcd7a16017f6c5d8e3fb"
+    },
+    {
+      "path": "app/viz_routes.py",
+      "source_sha256": "6e97605112db1af50fb6124a0c99dcb544a682e7072d5bcedcec7b3a0e3de2bd",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "48bf37af60d9818e1f8201d6142781842b21b02a8723e7132eccddc242670711"
+    },
+    {
+      "path": "db/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "db/database.py",
+      "source_sha256": "10bba60745b70b133d837f7465bb5f03de18aa0a8d54f5bc42d31f0b67d53736",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "3b4a0802f72cf40d466e6d616536640116bcb25f89dab8252ef4fd789e1c8e24"
+    },
+    {
+      "path": "db/models.py",
+      "source_sha256": "cef9d8bb11d2387119785cb48ee8ff99232d51ec3372671bfbfeeb9b17f6f281",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "d3aa6de7ceb55afa6702fd3e59cf6bd65bd2d6647a7c4d6b43e89d3bf6e332c7"
+    },
+    {
+      "path": "db/upsert.py",
+      "source_sha256": "3a4f372da0ca58d1756289851ca9ef3605e7272df806f7755e468fbb34be1574",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "f13f613197346d42f23c2cb8c815b41a89f71e55fa7074597d750a6dda870f40"
+    },
+    {
+      "path": "embeddings/__init__.py",
+      "source_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
+    },
+    {
+      "path": "embeddings/build_visualization.py",
+      "source_sha256": "937990eb6e48c726e04e04d24824b218dc63f152e94d1bc92e9381a293195d01",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "90bf28d3b2f93d83afd3e5a1572862b8ee0df60f8223db94e0ba28fcf460e123"
+    },
+    {
+      "path": "embeddings/embed_captions.py",
+      "source_sha256": "c9c1c26fb2bc0f09f8050f016a962ff231b8d5d68d984ef6e51adabe31035878",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "d43bb7a3cd1a0bb550a49db63f943a75cae035ef445e5df82b80ce8e24362192"
+    },
+    {
+      "path": "embeddings/embed_fulltext.py",
+      "source_sha256": "0cdc334eaa3e883fa6d707f9afe49d0155665b54f72acbd619259568a6e86244",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "4ce95aaece4fb4470fa779ed76b398e7be56de6b47ecaac342cad2c76cdac6d4"
+    },
+    {
+      "path": "embeddings/embed_papers.py",
+      "source_sha256": "5491675b0e74e21763d7791384077cb171d3632cd210385c04863f437351d578",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "606d71a17526193bee0f8068c59e6c132c0a98f2befb8f2b58e21db8ed54f846"
+    },
+    {
+      "path": "embeddings/embedder.py",
+      "source_sha256": "06476155c7e501f72a870742da0804ac67fdab2ebba6cc960e19cf1aaa50d037",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "8c9863bad47520f4d0d96cd910ef65bfb6151f4a11b76bf47a1746ced57cdf44"
+    },
+    {
+      "path": "ingestion/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "ingestion/clean_papers.py",
+      "source_sha256": "c0aa0711c6b4199e5d7442a5e485dbc2d65d8b63e26aade6cdd5a3544aa28991",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "c0aa0711c6b4199e5d7442a5e485dbc2d65d8b63e26aade6cdd5a3544aa28991"
+    },
+    {
+      "path": "ingestion/config.py",
+      "source_sha256": "b6fa51188013d55c07b1fe93fa60b631ad0f81dc1d4587b9df9c42984e1916ad",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "a53e64b2d8d4bcc2ba00e886fdafd1b784ad2fa16135ab3d05477b0c6937be9d"
+    },
+    {
+      "path": "ingestion/download_pdfs.py",
+      "source_sha256": "52a8339607eef95828247b50fd296e908c75ff230fe34040beb6fd9df091f5a4",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "52a8339607eef95828247b50fd296e908c75ff230fe34040beb6fd9df091f5a4"
+    },
+    {
+      "path": "ingestion/extract_fulltext.py",
+      "source_sha256": "0bd56673b8dde2884e8e6d7102fdeca94d70bddf09edeb1d54b09a7d8e21a83c",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "0bd56673b8dde2884e8e6d7102fdeca94d70bddf09edeb1d54b09a7d8e21a83c"
+    },
+    {
+      "path": "ingestion/extract_visuals.py",
+      "source_sha256": "8ff188998ada3edcfb775708f6b39aaafa1bef0dac2e9f5be24cfa931adcad5f",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "8ff188998ada3edcfb775708f6b39aaafa1bef0dac2e9f5be24cfa931adcad5f"
+    },
+    {
+      "path": "ingestion/fetch_papers.py",
+      "source_sha256": "2770696afdd947c9b35b21509717a1d1161c26e0e7617bcd9d7cb9fc48de478b",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "f9f3dc936bcf0865dba328818aaf3bf473350a77d57e5c2b5c11b122696914f0"
+    },
+    {
+      "path": "ingestion/finalize_papers.py",
+      "source_sha256": "9d9ddb34b4abc0fa56f868b0a0e8709ad227251cb54e90f39b95893bcb2602ad",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "9d9ddb34b4abc0fa56f868b0a0e8709ad227251cb54e90f39b95893bcb2602ad"
+    },
+    {
+      "path": "ingestion/run_pipeline.py",
+      "source_sha256": "13fef9888722b13dee4e685962784c75c2e37a65930a4e13ae298259dadf1eff",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "9c1f288b1f863459c9b55dc92d12c697560e21a1b5f623a56ca607df58eea129"
+    },
+    {
+      "path": "utils/__init__.py",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "utils/logger.py",
+      "source_sha256": "6cbd7518e6676bcc228b54efc0390904fd69c66205626836f56bce9ca7b78e4e",
+      "classification": "modified-inherited",
+      "destination_sha256_at_setup": "a980cb6919f21ace1065265d384d7b1b53f2b2f0dcf7d8f4cf7f5a582481b117"
+    },
+    {
+      "path": "static/visualize.html",
+      "source_sha256": "e26c7a39d46986e3653ddf0d6c094499e8221bcaf54e6c0a62a82b8696e4b7db",
+      "classification": "inherited",
+      "destination_sha256_at_setup": "e26c7a39d46986e3653ddf0d6c094499e8221bcaf54e6c0a62a82b8696e4b7db"
+    }
+  ],
+  "ignored_local_assets": [
+    {
+      "path": "data/raw/oral_cancer_papers.json",
+      "source_sha256": "71540cc53910bd49b88ba195233d8ed5dada8991c9ca29070192bf3c843f271d",
+      "bytes": 494923,
+      "distribution": "ignored-local-copy-only"
+    },
+    {
+      "path": "data/processed/oral_cancer_papers_final.json",
+      "source_sha256": "f57e2b803d3fc4e1f2a9b4d371e1b73fa925f888180f4583638cf8231920bc00",
+      "bytes": 489135,
+      "distribution": "ignored-local-copy-only"
+    },
+    {
+      "path": "embeddings/oral_cancer_papers_embedded.json",
+      "source_sha256": "7a99530c13f1323081ea35b4f0df045d35049eb43b240cf44ad5dc267643c3f4",
+      "bytes": 3874053,
+      "distribution": "ignored-local-copy-only"
+    },
+    {
+      "path": "embeddings/models/umap_model.joblib",
+      "source_sha256": "d232f5fae4ada0fcc9c663d0b834e5bef61dd846aeb716b8a221be32b784e80e",
+      "bytes": 50796536,
+      "distribution": "ignored-local-copy-only"
+    },
+    {
+      "path": "embeddings/models/viz_manifest.json",
+      "source_sha256": "5ca5a62f2d18cc5a1f96bc3d092295676fdd27fa7f9bbe058f698557836707f3",
+      "bytes": 2271684,
+      "distribution": "ignored-local-copy-only"
+    }
+  ],
+  "excluded": [
+    ".git",
+    ".env",
+    "logs",
+    "archive",
+    "source README",
+    "source docs",
+    "virtual environments"
+  ]
+}

@@ -1,0 +1,31 @@
+# Local credentials, environments, caches and logs
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+logs/
+*.log
+.ruff_cache/
+.mypy_cache/
+
+# Local research data and generated/model artifacts
+data/
+embeddings/models/
+embeddings/oral_cancer_papers_embedded.json
+*.joblib
+*.pkl
+*.npy
+
+# Build products
+node_modules/
+dist/
+build/
+*.egg-info/

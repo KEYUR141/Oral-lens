@@ -1,0 +1,71 @@
+from sqlalchemy import (
+    MetaData, Table, Column,
+    Integer, Text, Boolean, ARRAY, TIMESTAMP,
+    Index, UniqueConstraint, func, text
+)
+from pgvector.sqlalchemy import Vector
+from db.database import engine, require_db_writes
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+metadata = MetaData()
+
+papers_table = Table("papers", metadata,
+
+    Column("id",         Integer, primary_key=True, autoincrement=True),
+    Column("paper_id",   Text,    nullable=False),
+
+    Column("title",               Text,        nullable=False),
+    Column("abstract",            Text),
+    Column("year",                Integer),
+    Column("citation_count",      Integer,     default=0),
+    Column("is_open_access",      Boolean,     default=False),
+    Column("publication_types",   ARRAY(Text)),
+    Column("open_access_pdf_url", Text),
+    Column("image_path",          Text),
+
+    Column("embedding_text", Text),
+    Column("embedding",      Vector(768)),
+
+    Column("source",      Text,    default="abstract"),
+    Column("chunk_index", Integer, default=0),
+
+    Column("created_at", TIMESTAMP, server_default=func.now()),
+
+    # Reproduces papers_unique_chunk, which was created manually before this
+    # was tracked in the ORM. A paper can have multiple rows (abstract,
+    # fulltext chunks, figure captions), so uniqueness is per (paper_id,
+    # source, chunk_index), not on paper_id alone.
+    UniqueConstraint("paper_id", "source", "chunk_index", name="papers_unique_chunk"),
+)
+
+
+Index(
+    "papers_embedding_idx",
+    papers_table.c.embedding,
+    postgresql_using="ivfflat",
+    postgresql_with={"lists": 100},
+    postgresql_ops={"embedding": "vector_cosine_ops"},
+)
+
+Index("papers_year_idx",           papers_table.c.year)
+Index("papers_citation_count_idx", papers_table.c.citation_count)
+Index("papers_source_idx",         papers_table.c.source)
+
+
+def create_tables():
+    require_db_writes()
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+            conn.commit()
+        metadata.create_all(engine)
+        logger.info("Tables created successfully.")
+    except Exception as e:
+        logger.error("Could not initialize database schema. Check connection and permissions.")
+        raise
+
+
+if __name__ == "__main__":
+    create_tables()

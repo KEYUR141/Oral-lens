@@ -1,0 +1,30 @@
+{
+  "built_on": "2026-10-27",
+  "command": "uv run --locked --offline python -m ingestion.run_pipeline --stage build_visualization",
+  "classification": "regenerated local artifacts from inherited visualization functionality",
+  "rows_and_points": 4666,
+  "distinct_papers": 146,
+  "sources": {
+    "abstract": 146,
+    "fulltext": 4117,
+    "figure_captions": 403
+  },
+  "finite_coordinates": true,
+  "database_row_ids_match": true,
+  "sample_stored_vector_projection_checked": true,
+  "visualization_page_http_status": 200,
+  "visualization_manifest_http_status": 200,
+  "artifacts": [
+    {
+      "path": "embeddings/models/umap_model.joblib",
+      "bytes": 50799352,
+      "sha256": "ba3e62ac57d1bf28691ffa13ebf089b18ce84d91462337b1aaf1425d19980f48"
+    },
+    {
+      "path": "embeddings/models/viz_manifest.json",
+      "bytes": 2271684,
+      "sha256": "5ca5a62f2d18cc5a1f96bc3d092295676fdd27fa7f9bbe058f698557836707f3"
+    }
+  ],
+  "limits": "No database writes, embedding-model download, LLM calls, or natural-language visualization query were performed."
+}
