@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from app.db_routes import router as db_router
 from app.viz_routes import router as viz_router
+from app.review_routes import router as review_router
 from utils.logger import get_logger
 from utils.settings import DATA_DIR, env_bool
 
@@ -30,13 +31,14 @@ async def lifespan(application):
 app = FastAPI(
     title='Oral-lens corpus API',
     description='Inherited research corpus functionality and read-only database inspection. '
-                'The new Meta evidence-review workflow is not implemented yet.',
+                'A first, non-persistent Meta claim-review workflow is available at /reviews/assess.',
     version='0.1.0',
     lifespan=lifespan,
 )
 app.mount('/images', StaticFiles(directory=str(DATA_DIR / 'pdfs' / 'images'), check_dir=False), name='images')
 app.include_router(db_router)
 app.include_router(viz_router)
+app.include_router(review_router)
 
 
 class QueryRequest(BaseModel):
@@ -73,7 +75,7 @@ def query(request: QueryRequest):
     if not env_bool('ENABLE_LEGACY_QUERY'):
         raise HTTPException(status_code=503, detail=(
             'Inherited literature query is disabled. Use /papers to inspect data. '
-            'The Meta evidence-review workflow is not implemented yet.'
+            'Use /reviews/assess for the new draft claim-review workflow.'
         ))
     if not request.query.strip():
         raise HTTPException(status_code=400, detail='Query cannot be empty.')

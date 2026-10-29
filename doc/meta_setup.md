@@ -66,3 +66,7 @@ On 29 October the real `Meta_Muse_API_KEY` was blank. The manual configuration c
 - [Meta reasoning controls and token budgets](https://dev.meta.ai/docs/reasoning)
 
 Documentation was consulted on 29 October; actual account/model availability must be established by the later live request.
+
+## Subsequent participant-reported live result
+
+On 29 October the participant supplied successful smoke output: muse-spark-1.3, MUSE_OK, 33 total tokens, finish_reason stop, 2.97 seconds. This establishes basic text generation for that run; the new review graph, native structured output and tool calling remain unverified live. Historical key-absent statements above describe the earlier setup, not the current credential state.

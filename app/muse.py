@@ -17,10 +17,11 @@ class MuseConfigurationError(ValueError):
 
 class MuseAPIError(RuntimeError):
     def __init__(self, message: str, *, status_code: int | None = None,
-                 code: str | None = None):
+                 code: str | None = None, finish_reason: str | None = None):
         super().__init__(message)
         self.status_code = status_code
         self.code = code
+        self.finish_reason = finish_reason
 
 
 @dataclass(frozen=True)
@@ -120,6 +121,7 @@ def complete(messages: list[dict], *, max_tokens: int = 1500,
                 'Meta accepted the request but returned no visible text. '
                 'Check output budget, finish reason, or model response handling.',
                 status_code=200, code='empty_output',
+                finish_reason=choice.get('finish_reason'),
             )
         usage = body.get('usage')
         usage = {name: value for name, value in usage.items()

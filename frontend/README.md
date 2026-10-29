@@ -1,6 +1,6 @@
 # Oral-lens frontend
 
-React + TypeScript + Vite foundation, with Three.js installed for future visualization work. This is a local starter, not the completed evidence-review interface. It does not replace the inherited backend visualization.
+React + TypeScript + Vite local demo, with product and presentation views. Product connects to the first draft claim-review API; presentation introduces the problem with sourced statistics. Three.js is installed; the inherited backend visualization remains separate. See [demo walkthrough and sources](../doc/frontend_demo.md).
 
 ## Run
 
@@ -11,13 +11,13 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Open http://127.0.0.1:5173. Start the backend separately from the repository root:
+Open http://127.0.0.1:5173/#product or http://127.0.0.1:5173/#present. Start the backend separately from the repository root:
 
 ```powershell
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Vite proxies `/api/*` to FastAPI on port 8000, removing the `/api` prefix. For example, frontend requests to `/api/database/status` reach the existing `/database/status` endpoint. The initial starter does not fetch database records automatically.
+Vite proxies `/api/*` to FastAPI on port 8000, removing the `/api` prefix. Corpus status and paper listings load automatically; submitting a claim calls `/reviews/assess` and consumes Meta credits. Presentation content remains usable when the backend is unavailable. Proxy configuration for production deployment is not included.
 
 ## Dependencies and checks
 
@@ -30,4 +30,4 @@ Vite proxies `/api/*` to FastAPI on port 8000, removing the `/api` prefix. For e
 
 Use `npm.cmd` on Windows if PowerShell blocks `npm.ps1`. No execution-policy change is needed. Other shells can use `npm`.
 
-The backend uses uv; frontend dependencies remain managed by npm. Never copy the root database or model credentials into frontend environment variables. Browser-exposed Vite variables are public. No model API calls, patient features, or new review capabilities are implemented by this setup.
+The backend uses uv; frontend dependencies remain managed by npm. Never copy the root database or model credentials into frontend environment variables. Browser-exposed Vite variables are public. Model calls stay on the backend. Results are unsaved drafts; human acceptance, study comparison and export remain planned. No patient features are included.

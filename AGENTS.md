@@ -6,7 +6,7 @@ Oral-lens is a research literature review workspace for oral cancer researchers 
 
 For implementation, product documentation, evaluation, or submission work, read the repository skill at [.agents/skills/oral-lens-hackathon/SKILL.md](.agents/skills/oral-lens-hackathon/SKILL.md) and follow its relevant document links. The human-readable source of project rules and judging weights is [doc/hackathon_rules.md](doc/hackathon_rules.md).
 
-Use [doc/README.md](doc/README.md) to route to the stack, product differences, flow, and contribution record. Inherited backend code and new inspection/setup tooling are now present; the new Meta review workflow remains planned. Read [doc/local_setup.md](doc/local_setup.md) for actual commands and [doc/uv_workflow.md](doc/uv_workflow.md) for dependency management. Use `uv run pytest -q` for setup checks. Inspect the current tree before claiming other features exist.
+Use [doc/README.md](doc/README.md) to route to the stack, product differences, flow, and contribution record. Inherited backend code and new inspection/setup tooling are now present; a first non-persistent Meta claim-review graph is implemented; the full review workspace remains planned. Read [doc/local_setup.md](doc/local_setup.md) for actual commands and [doc/uv_workflow.md](doc/uv_workflow.md) for dependency management. Use `uv run pytest -q` for setup checks. Inspect the current tree before claiming other features exist.
 
 ## Project invariants
 
@@ -33,6 +33,6 @@ Flag medical-advice behavior, fabricated citations/numbers/results, missing prov
 
 ## Learning while building
 
-The participant is new to LangChain and LangGraph and wants to learn them through this project. Introduce each concept in plain Python terms before its first use, explain why the project needs it, and walk through the resulting code and execution. Build one small working slice at a time and offer a short experiment the participant can run. Explain tool schemas, model-selected calls versus application-controlled steps, graph state, nodes, edges, bounded loops, and persistence as they become relevant. Do not require quizzes or repeated approval to continue authorized work.
+The participant is new to LangChain and LangGraph and wants to learn them through this project. Introduce each concept in plain Python terms before its first use, explain why the project needs it, and walk through the resulting code and execution. Build one small working slice at a time and offer a short experiment the participant can run. Explain tool schemas, model-selected calls versus application-controlled steps, graph state, nodes, edges, bounded loops, and persistence as they become relevant. The participant requested an explanation and a short quiz before each new implementation lesson. Review their answers and clarify misconceptions before implementing that lesson; do not add unrelated approval gates.
 
 Use selected LangChain components and LangGraph where they serve the evidence-review workflow, after checking Meta provider compatibility. Neither framework is universally required for AI engineering or earns an automatic judging bonus. Keep framework adoption, implemented behavior, and verified results distinct; prioritize a useful working demo over extra abstractions.

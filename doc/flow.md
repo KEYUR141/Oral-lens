@@ -1,6 +1,6 @@
 # User flow and AI tool workflow
 
-Status: planned behavior, 27 October 2026. Routes, records, tools, and events below are design contracts, not implemented interfaces.
+Status updated 29 October 2026: the full flow below remains the target design. A first non-persistent POST /reviews/assess slice implements scope classification, application-controlled scoped retrieval, draft assessment and source checks. See [lesson 1](workflow_lesson_01.md) for the actual contract and limits; A bounded conditional follow-up search is now implemented; see [lesson 2](workflow_lesson_02.md). Native model-selected tool calls, persistence and human review are not implemented.
 
 ## User outcome
 

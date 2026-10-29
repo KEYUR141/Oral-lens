@@ -24,7 +24,7 @@ Do not load unrelated material or duplicate the full rules in every document. Ke
 
 ## Implement within the actual research task
 
-Inspect current code and status first. The repository includes inherited backend code, local inspection/setup tooling, a frontend starter, and a shared Meta completion client/manual smoke script. Live Meta access is not established without a successful provider request. The new evidence-review workflow remains planned. Do not invent deployment, benchmark results, or completed features from design documents.
+Inspect current code and status first. The repository includes inherited backend code, local inspection/setup tooling, a frontend starter, and a shared Meta completion client/manual smoke script. Live Meta access is not established without a successful provider request. The first non-persistent claim-review graph is implemented; see doc/workflow_lesson_01.md from the repository root for its contract and verification limits. The full evidence-review workspace remains planned. Do not invent deployment, benchmark results, or completed features from design documents.
 
 Use FastAPI, typed validation, the existing retrieval architecture where legitimately reusable, and a React review workspace. Keep Meta tool execution in a bounded backend loop. The four proposed tools are search_literature, read_passages, validate_evidence, and update_review; use the flow document for their constraints. Add complexity only for a concrete user need or observed failure.
 

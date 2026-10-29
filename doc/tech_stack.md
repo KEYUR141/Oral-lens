@@ -20,8 +20,8 @@ FastAPI's typed validation and API-oriented structure fit the planned tool contr
 | Database access | SQLAlchemy and Alembic | Existing access pattern as reference; explicit migrations for the new schema |
 | Embeddings | sentence-transformers with existing S-PubMedBERT-MS-MARCO model | Candidate reuse of embedding/search foundation; validate retrieval before adopting the old threshold |
 | Document preparation | Existing ingestion stages and PyMuPDF | Conditional reuse; prepare permitted text and locations outside interactive review requests |
-| AI inference | Meta Model API over HTTPS using requests | Shared completion client and manual smoke script implemented; live access unverified; structured extraction, claim assessment and function calling planned |
-| Agent orchestration | One bounded Python tool loop | New allowlisted tools; application validates and executes every requested call |
+| AI inference | Meta Model API over HTTPS using requests | Shared completion client and manual smoke script implemented; participant-reported basic live smoke success; draft claim assessment implemented with offline checks, combined live review and native function calling unverified |
+| Agent orchestration | LangGraph 1.2.18 and LangChain Core 1.7.1 | First bounded scope/search/assessment/source-check graph implemented; application invokes a typed search tool. Model-selected calls, checkpointing and full review persistence remain planned. See [lesson 1](workflow_lesson_01.md). |
 | Progress | Server-Sent Events (SSE) | New actual run events streamed to the browser; saved state remains in PostgreSQL |
 | Verification | pytest, annotated fixtures, frontend build/type checks | Setup pytest and frontend TypeScript/production build checks pass; evidence-quality benchmarks and browser rendering checks remain future work |
 | Packaging | Docker; one application service plus PostgreSQL | Proposed repeatable local/deployment setup; hosting provider remains undecided |
@@ -75,11 +75,11 @@ For the MVP, Vite can produce static frontend assets served by the application s
 
 Keep the curated corpus preprocessed. Long or interruption-prone ingestion remains a separate resumable command/job. Persist review progress and enforce per-run time, token, tool-call, and retry limits. Browser reconnection must not silently launch a second model run. More durable workers can be added if measured workload requires them.
 
-Meta API access is not yet verified. The participant's later screenshot confirms $150 credits, and on 29 October they reported adding a payment method whose e-commerce verification had failed. The API key is still blank and the participant will add it later; no live request or verification bypass was attempted. Do not infer API access from dashboard appearance or treat a billing notification as a hard spending cap. Database inspection is independently usable with PostgreSQL credentials and requires no model key.
+The participant reported a successful basic live Meta completion on 29 October (muse-spark-1.3, MUSE_OK, 33 total tokens, 2.97 seconds). This does not verify the combined review workflow, native structured output or tool calling. No billing settings were changed by this implementation.
 
 ## Deliberate scope choices
 
-Use one model-driven loop first. A larger agent framework, multiple agents, additional vector database, and separate search infrastructure require a demonstrated need. Markdown and HTML are the initial exports. Keep the new review workspace central to the demo; the inherited 3D explorer is background functionality.
+Use one model-driven loop first. Multiple agents, additional vector database, and separate search infrastructure require a demonstrated need. Markdown and HTML are the initial exports. Keep the new review workspace central to the demo; the inherited 3D explorer is background functionality.
 
 ## Technical references
 
