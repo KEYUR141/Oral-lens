@@ -2,7 +2,18 @@
 
 An oral cancer literature review workspace for researchers and student literature reviewers. The planned product compares studies, links findings to source passages, and helps researchers check draft conclusions and export a reviewed evidence brief.
 
-**Status: inherited backend and local database setup, 27 October 2026.** Source ingestion, embedding, retrieval, and visualization functionality is copied from Oral Cancer X. New read-only database inspection and environment tooling are added. The Meta evidence-review workflow, React workspace, benchmark results, and deployment remain planned.
+**Status: inherited backend, local database tooling, frontend starter, and Meta completion client, 29 October 2026.** The Meta smoke test and shared answer client are implemented; live model access is not yet verified. The evidence-review workflow, complete React workspace, benchmark results, and deployment remain planned.
+
+## Test Meta Muse
+
+Set `Meta_Muse_API_KEY` locally in `.env` and choose `Meta_Muse_MODEL` (the example uses `muse-spark-1.3`). Then run:
+
+```powershell
+uv run python test_muse_llm.py --check-config
+uv run python test_muse_llm.py
+```
+
+The first command checks settings without a request; the second makes one bounded API call and reports success or a sanitized provider/network error. See [Meta setup](doc/meta_setup.md). No billing verification is bypassed.
 
 ## Connect and inspect your database
 
@@ -32,6 +43,7 @@ Open `http://127.0.0.1:5173`. The development server proxies `/api/*` to the bac
 
 - [Documentation index and MVP](doc/README.md)
 - [Local environment and database setup](doc/local_setup.md)
+- [Meta Muse configuration and smoke test](doc/meta_setup.md)
 - [uv project workflow](doc/uv_workflow.md)
 - [Existing database inventory](doc/database_inventory.md)
 - [Codex with Meta coding models](doc/coding_models.md)

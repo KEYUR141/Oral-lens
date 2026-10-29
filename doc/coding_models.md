@@ -13,11 +13,13 @@ model_provider = "meta"
 [model_providers.meta]
 name = "Meta Model API"
 base_url = "https://api.meta.ai/v1"
-env_key = "MODEL_API_KEY"
+env_key = "Meta_Muse_API_KEY"
 wire_api = "responses"
 ```
 
 Merge with existing user settings rather than blindly appending duplicate TOML keys. Current Codex documentation places provider/auth settings in user-level configuration; project configuration is not a place to redirect credentials. Separate named user profiles are another documented option, subject to the installed client version. This file is an example, not an installed configuration or verified Meta session.
+
+Oral-lens now names its settings `Meta_Muse_API_KEY` and `Meta_Muse_MODEL`. The env_key above intentionally uses the project name rather than the documentation's conventional key name; the API itself receives an Authorization header, not an environment-variable name. Export that variable into a coding client's environment explicitly if configuring one. No user-level Codex settings are edited by the application smoke test.
 
 The selected provider handles the configured model requests and its API account/credits apply. Verify actual access and billing in that provider's account. Account-specific availability and features of this hosted chat or IDE integration are not established by a terminal-client example.
 

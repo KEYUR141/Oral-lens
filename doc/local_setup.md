@@ -1,6 +1,6 @@
 # Local setup and database inspection
 
-Updated: 27 October 2026. The inherited FastAPI backend, ingestion stages, embedding code, and 3D visualization files are copied into Oral-lens. The new Meta evidence-review product remains planned. No existing database was initialized, modified, or populated by the import task.
+Updated: 29 October 2026. The inherited FastAPI backend, ingestion stages, embedding code, and 3D visualization files are copied into Oral-lens. The new Meta evidence-review product remains planned. No existing database was initialized, modified, or populated by the import task.
 
 ## What was copied
 
@@ -139,9 +139,9 @@ uv run python -m ingestion.run_pipeline --stage build_visualization
 
 Embedding is the first operation that loads/downloads the configured sentence-transformer weights. Keep the model compatible with the existing stored vectors; changing to a different embedding model requires deliberate re-embedding/versioning. The old unique-key conflict handling skips existing rows rather than replacing them. Check rights before downloading/processing new documents. Full-text and figure stages need actual permitted PDFs; the local abstract JSON alone cannot restore them.
 
-## Inherited query and future work
+## Meta client, inherited query and future work
 
-`POST /query` is retained as an inherited baseline but disabled by default (`ENABLE_LEGACY_QUERY=false`). The backend no longer creates a Gemini client at startup. Database inspection and ingestion need neither Gemini nor Meta keys. The `.env` Meta fields are reserved for future implementation; no Meta evidence-review workflow exists yet. Optional legacy generation is not the hackathon feature showcase or a guarantee of medical-request handling.
+`POST /query` is retained as an inherited retrieval-and-answer baseline but disabled by default (`ENABLE_LEGACY_QUERY=false`). Its answer generator now uses the shared Meta client, configured by `Meta_Muse_API_KEY` and `Meta_Muse_MODEL`; Gemini credentials are no longer used by runtime code. Database inspection and ingestion need no model key. Use `uv run python test_muse_llm.py --check-config` to validate settings without a request and the same command without the flag for one small live request. See [Meta setup](meta_setup.md). Live access remains unverified until the participant adds the key. The new evidence-review workflow does not exist yet; optional baseline generation is not the hackathon feature showcase or a guarantee of medical-request handling.
 
 `WARM_UP_UMAP=false` avoids loading the serialized UMAP model at startup. Visualization query requests need ML dependencies, embedding weights, a matching UMAP bundle, and a connected database. Rebuild the local visualization files if their versions or corpus no longer match.
 

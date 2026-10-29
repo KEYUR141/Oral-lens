@@ -1,6 +1,6 @@
 # Working with uv
 
-Updated: 27 October 2026. Oral-lens now uses uv project management. The existing `.venv` was reused, a universal lock was resolved, the local environment was synchronized without downloading model weights, and setup checks passed.
+Updated: 29 October 2026. Oral-lens now uses uv project management. The existing `.venv` was reused, a universal lock was resolved, the local environment was synchronized without downloading model weights, and setup checks passed.
 
 ## Files and ownership
 
@@ -36,7 +36,7 @@ uv run pytest -q
 | Main dependencies | FastAPI, database access, settings, HTTP requests; enough for corpus inspection |
 | dev | pytest and HTTPX for setup/API checks |
 | ml | sentence-transformers, PyMuPDF, Pillow for inherited embedding/document work |
-| legacy | Optional inherited Gemini SDK; generation stays disabled by default |
+| legacy | Historical Gemini SDK retained from the baseline environment; no longer used by active answer-generation code |
 | visualization | UMAP, scikit-learn, joblib for the inherited explorer |
 
 All four groups are defaults, so ordinary `uv sync` preserves the full inherited local functionality plus tests. This is a project choice. A lightweight environment can be selected explicitly:
@@ -77,7 +77,7 @@ The last file retains its earlier name for compatibility; it is now an export, n
 
 ## Credentials and model configuration
 
-uv project management does not supply database credentials, activate Meta credits, or change the coding model. Application settings still come from the ignored `.env`. Standard `uv run` does not automatically export that file to every arbitrary external command; our Python app loads it explicitly. For external tools that need those variables, use an explicit environment-loading mechanism, such as `uv run --env-file .env ...`, only with commands intended to receive them.
+uv project management does not supply database credentials, activate Meta credits, or change the coding model. Application settings still come from the ignored `.env`, with `Meta_Muse_API_KEY` and `Meta_Muse_MODEL` for the shared Meta client. Standard `uv run` does not automatically export that file to every arbitrary external command; our Python app loads it explicitly. For external tools that need those variables, use an explicit environment-loading mechanism, such as `uv run --env-file .env ...`, only with commands intended to receive them.
 
 ## Sources
 

@@ -30,3 +30,9 @@ Update affected documentation when behavior changes. Run checks appropriate to t
 ## Code Review Rules
 
 Flag medical-advice behavior, fabricated citations/numbers/results, missing provenance, model writes to human-reviewed state, stale assessments after edits, unbounded tool loops, unrestricted model tool execution, misleading inherited-work claims, and export/deployment behavior that conceals failed or incomplete runs. Use the rules document for submission-specific checks.
+
+## Learning while building
+
+The participant is new to LangChain and LangGraph and wants to learn them through this project. Introduce each concept in plain Python terms before its first use, explain why the project needs it, and walk through the resulting code and execution. Build one small working slice at a time and offer a short experiment the participant can run. Explain tool schemas, model-selected calls versus application-controlled steps, graph state, nodes, edges, bounded loops, and persistence as they become relevant. Do not require quizzes or repeated approval to continue authorized work.
+
+Use selected LangChain components and LangGraph where they serve the evidence-review workflow, after checking Meta provider compatibility. Neither framework is universally required for AI engineering or earns an automatic judging bonus. Keep framework adoption, implemented behavior, and verified results distinct; prioritize a useful working demo over extra abstractions.

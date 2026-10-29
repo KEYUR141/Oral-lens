@@ -1,11 +1,7 @@
-import os
 from utils.logger import get_logger
-from utils import settings
+from app.muse import complete
 
 logger = get_logger(__name__)
-
-MODEL_NAME = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
-
 
 def build_prompt(query: str, retrieved_papers: list[dict]) -> str:
     try:
@@ -59,23 +55,8 @@ def generate_answer(query: str, retrieved_papers: list[dict]) -> dict:
                 "sources": [],
             }
 
-        from google import genai
-        from google.genai import types
-
-        api_key = os.getenv('GEMINI_API_KEY', '').strip()
-        if not api_key:
-            raise RuntimeError('Optional inherited query requires GEMINI_API_KEY.')
-        client = genai.Client(api_key=api_key)
         prompt = build_prompt(query, retrieved_papers)
-
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.2,
-                max_output_tokens=1500,
-            ),
-        )
+        response = complete([{'role': 'user', 'content': prompt}], max_tokens=1500)
 
         return {
             "query":   query,
@@ -97,7 +78,7 @@ def generate_answer(query: str, retrieved_papers: list[dict]) -> dict:
             ],
         }
     except Exception as e:
-        logger.error(f"Error generating answer: {e}")
+        logger.error('Answer generation failed (%s).', type(e).__name__)
         raise
 
 

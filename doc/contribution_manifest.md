@@ -1,6 +1,6 @@
 # Contribution manifest
 
-Updated: 27 October 2026. Purpose: distinguish prior work, modifications to inherited components, and genuinely new hackathon work. This is an evidence record, not a statement of organizer approval.
+Updated: 29 October 2026. Purpose: distinguish prior work, modifications to inherited components, and genuinely new hackathon work. This is an evidence record, not a statement of organizer approval.
 
 ## Baselines
 
@@ -23,7 +23,7 @@ On 27 October the participant explicitly instructed Codex to copy their local Or
 | Embedding implementation | `embeddings/*.py` | Copied code; lazy transformer import, configurable model, write checks before model loading | Inherited model choice; model weights not downloaded by setup |
 | Persistence | `db/database.py`, `db/models.py`, `db/upsert.py` | Adapted URL/env handling, enforced inspection read-only transactions, explicit schema/write guard, actual insert counts | No live database schema creation or ingestion; tests cover guards |
 | Retrieval | `app/retrieval.py` | Copied unchanged | Historical paper-deduplicated retrieval; not the new provenance-aware review search |
-| Generation | `app/llm.py`, `app/main.py` | Retained Gemini baseline, lazily created client, research-only prompt wording, query disabled by default | Not a Meta implementation; no LLM calls or generation-quality claim |
+| Generation | `app/llm.py`, `app/main.py` | Inherited retrieval/prompt/source formatting; on 29 October provider changed to shared Meta client, query still disabled by default | Modified inherited behavior; not the new review workflow; no successful live model call or generation-quality claim |
 | Explorer | `static/visualize.html`, `app/visualize.py`, `app/viz_routes.py`, `embeddings/build_visualization.py` | Copied inherited display; local paths and optional warm-up | Local model/manifest rebuilt from 4,666 rows; stored-vector transform and GET routes verified; inherited functionality excluded from new-feature showcase |
 | Local data/model files | Two data JSON files, abstract embedding JSON, UMAP joblib and manifest | Copied locally and ignored by Git | 149 raw metadata records; 146 curated and embedded abstracts; no PDFs/full-text/images were present; no redistribution clearance claimed |
 
@@ -48,6 +48,7 @@ Do not import all prior content merely because it is public. The participant's o
 | Database coverage inventory | `doc/database_inventory.md` | 27 Oct 2026 | New read-only analysis | Explicitly read-only checks of source coverage, 768-dimensional vectors, empty text and duplicate keys; not scientific validation |
 | Visualization artifact refresh | Ignored `embeddings/models/umap_model.joblib`, `embeddings/models/viz_manifest.json`; `doc/visualization_build.json` | 27 Oct 2026 | Regenerated local output of inherited functionality | 4,666 finite 3D points across 146 papers; source counts and database IDs match; stored-vector transform and both GET routes pass; no database write or new-model feature claimed |
 | Frontend foundation | `frontend/` including package.json, package-lock.json, src, and vite.config.ts | 27 Oct 2026 | Vite create-vite 9.3.1 React/TypeScript template plus new project starter content and local API proxy; third-party packages remain their authors' work | React 19.3.1, Three.js 0.186.1 and TypeScript types installed; npm dependency tree and Three.js Scene/camera imports checked; TypeScript and production build pass; no review interface, browser/WebGL rendering, or new visualization capability claimed |
+| Meta client and smoke test | `app/muse.py`, `test_muse_llm.py`, `tests/test_muse.py`, `.env.example`, provider updates in `app/llm.py`/`app/main.py`, and `doc/meta_setup.md` | 29 Oct 2026 | New shared client/test tooling plus modified inherited answer function | Canonical Meta_Muse settings, bounded requests, sanitized errors; 18 new mocked checks plus 16 prior checks pass; key absent, no live request, no billing-verification outcome claimed |
 
 No commit or push has been made by these tasks. Record the real destination commit when files are committed; never invent a SHA. Inherited backend and setup work do not substitute for the planned new review product.
 
@@ -56,7 +57,7 @@ No commit or push has been made by these tasks. Record the real destination comm
 | Feature | Expected code/data area | Status | Evidence needed before showcasing |
 | --- | --- | --- | --- |
 | Passage provenance and source viewer | Backend passage records, migrations, frontend source panel | Planned | Passage/version identity, source location accuracy, missing-location behavior |
-| Meta provider adapter and bounded tool loop | Backend model/tool modules | Planned | Real Meta run with model ID, scoped tool events, errors/budgets handled |
+| Meta provider adapter and bounded tool loop | `app/muse.py` completion transport present; review tool loop remains to build | Partially implemented; live access unverified | Successful real Meta run plus actual review tool events and budget/error handling still required |
 | Structured study comparison | Finding records and review workspace | Planned | Source-linked fields, missing values, independently annotated extraction cases |
 | Claim and comparability assessment | Claim records and assessment flow | Planned | Supported/insufficient/non-comparable cases with actual source evidence and measured errors |
 | Researcher edits and revision history | Review APIs and frontend controls | Planned | Persisted corrections, stale-write protection, user-only reviewed state |

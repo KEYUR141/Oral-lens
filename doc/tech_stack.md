@@ -20,7 +20,7 @@ FastAPI's typed validation and API-oriented structure fit the planned tool contr
 | Database access | SQLAlchemy and Alembic | Existing access pattern as reference; explicit migrations for the new schema |
 | Embeddings | sentence-transformers with existing S-PubMedBERT-MS-MARCO model | Candidate reuse of embedding/search foundation; validate retrieval before adopting the old threshold |
 | Document preparation | Existing ingestion stages and PyMuPDF | Conditional reuse; prepare permitted text and locations outside interactive review requests |
-| AI inference | Meta Model API using its documented Python-compatible SDK interface | New runtime extraction, claim assessment, and function calling |
+| AI inference | Meta Model API over HTTPS using requests | Shared completion client and manual smoke script implemented; live access unverified; structured extraction, claim assessment and function calling planned |
 | Agent orchestration | One bounded Python tool loop | New allowlisted tools; application validates and executes every requested call |
 | Progress | Server-Sent Events (SSE) | New actual run events streamed to the browser; saved state remains in PostgreSQL |
 | Verification | pytest, annotated fixtures, frontend build/type checks | Setup pytest and frontend TypeScript/production build checks pass; evidence-quality benchmarks and browser rendering checks remain future work |
@@ -48,9 +48,9 @@ Use an asynchronous HTTP client for model calls. Keep blocking database/embeddin
 
 ## Meta integration
 
-Use a small provider adapter so model selection, retries, request serialization, usage recording, and output parsing live in one place. Choose an account-accessible Meta model after a real capability check; a documentation example is not proof of access. Store the configured model ID with every run.
+The shared provider adapter is `app/muse.py`; it reads `Meta_Muse_API_KEY` and `Meta_Muse_MODEL`, sends one bounded request without automatic retries, parses visible text/usage, and sanitizes errors. The inherited answer function uses it; `test_muse_llm.py` is the manual connectivity test. See [Meta setup](meta_setup.md). Choose an account-accessible model after a real capability check; a documentation example is not proof of access.
 
-The documented OpenAI-compatible Python SDK is a transport option for calls to Meta's endpoint; it does not make OpenAI the inference provider. Preserve that distinction in code, documentation, and the submission.
+Meta documents an OpenAI-compatible API surface, but the current adapter uses the already installed requests library directly. Meta remains the inference provider. No OpenAI SDK/key is required for this implementation.
 
 Application-level Pydantic validation is required for tool arguments and generated records. API schema settings alone do not establish scientific correctness or remove the need for validation.
 
@@ -75,7 +75,7 @@ For the MVP, Vite can produce static frontend assets served by the application s
 
 Keep the curated corpus preprocessed. Long or interruption-prone ingestion remains a separate resumable command/job. Persist review progress and enforce per-run time, token, tool-call, and retry limits. Browser reconnection must not silently launch a second model run. More durable workers can be added if measured workload requires them.
 
-Meta API access is not yet verified. The participant reported submitting the credit form; the supplied dashboard screenshot still showed no payment method and zero API keys. Do not assume credits are active or treat a billing notification as a hard spending cap. Database inspection is independently usable with PostgreSQL credentials and requires no model API key.
+Meta API access is not yet verified. The participant's later screenshot confirms $150 credits, and on 29 October they reported adding a payment method whose e-commerce verification had failed. The API key is still blank and the participant will add it later; no live request or verification bypass was attempted. Do not infer API access from dashboard appearance or treat a billing notification as a hard spending cap. Database inspection is independently usable with PostgreSQL credentials and requires no model key.
 
 ## Deliberate scope choices
 

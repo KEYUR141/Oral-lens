@@ -72,7 +72,7 @@ def health():
 def query(request: QueryRequest):
     if not env_bool('ENABLE_LEGACY_QUERY'):
         raise HTTPException(status_code=503, detail=(
-            'Inherited Gemini query is disabled. Use /papers to inspect data. '
+            'Inherited literature query is disabled. Use /papers to inspect data. '
             'The Meta evidence-review workflow is not implemented yet.'
         ))
     if not request.query.strip():
@@ -88,5 +88,5 @@ def query(request: QueryRequest):
     except Exception as error:
         logger.warning('Inherited query unavailable (%s).', type(error).__name__)
         raise HTTPException(status_code=503, detail=(
-            'Inherited query unavailable. Check database, embedding dependencies and optional Gemini configuration.'
+            'Inherited query unavailable. Check database, embedding dependencies and Meta Muse configuration.'
         )) from None

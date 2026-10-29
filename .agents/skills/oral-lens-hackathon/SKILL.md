@@ -13,6 +13,7 @@ Paths below are relative to this skill directory:
 
 - For any feature or submission decision, read [rules and judging](../../../doc/hackathon_rules.md). Distinguish organizer requirements, project choices, and open interpretations.
 - For architecture or dependencies, read [tech stack](../../../doc/tech_stack.md).
+- For Meta configuration, provider errors or the manual smoke test, read [Meta setup](../../../doc/meta_setup.md). Canonical environment names are Meta_Muse_API_KEY and Meta_Muse_MODEL. Never expose keys, bypass billing requirements, or turn mocked tests into a live-access claim.
 - For environment, database connectivity, inspection or ingestion commands, read [local setup](../../../doc/local_setup.md). The participant authorized copying their local source project; preserve the recorded inherited classification and keep asset redistribution/organizer approval separate.
 - For dependency or Python environment changes, read [uv workflow](../../../doc/uv_workflow.md). Maintain pyproject.toml and uv.lock; regenerate compatibility requirements exports rather than editing them separately.
 - For tools, API behavior, data records, UI states, or exports, read [flow](../../../doc/flow.md).
@@ -23,7 +24,7 @@ Do not load unrelated material or duplicate the full rules in every document. Ke
 
 ## Implement within the actual research task
 
-Inspect current code and status first. The repository now includes inherited backend code and local inspection/setup tooling. The new Meta evidence-review workflow remains planned. Do not invent deployment, benchmark results, or completed features from design documents.
+Inspect current code and status first. The repository includes inherited backend code, local inspection/setup tooling, a frontend starter, and a shared Meta completion client/manual smoke script. Live Meta access is not established without a successful provider request. The new evidence-review workflow remains planned. Do not invent deployment, benchmark results, or completed features from design documents.
 
 Use FastAPI, typed validation, the existing retrieval architecture where legitimately reusable, and a React review workspace. Keep Meta tool execution in a bounded backend loop. The four proposed tools are search_literature, read_passages, validate_evidence, and update_review; use the flow document for their constraints. Add complexity only for a concrete user need or observed failure.
 
