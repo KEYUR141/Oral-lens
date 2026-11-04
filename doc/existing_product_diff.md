@@ -1,6 +1,6 @@
 # How Oral-lens differs from Oral Cancer X
 
-Status: source-backed baseline comparison and planned product changes, 27 October 2026. The new application capabilities below are not implemented yet.
+Status: source-backed baseline comparison, originally written 27 October 2026 and updated 5 November 2026. The table describes the full intended product; the implemented subset is recorded below.
 
 ## The problem we intend to solve
 
@@ -22,7 +22,7 @@ The prior app was not executed during the original documentation task. The subse
 
 ## Product and engineering comparison
 
-| Dimension | Observed earlier project | Planned Oral-lens contribution |
+| Dimension | Observed earlier project | Intended Oral-lens contribution |
 | --- | --- | --- |
 | Main task | Research question answering and corpus exploration | Study comparison and audit of a draft literature conclusion |
 | Input | Question text | Research question or draft paragraph plus explicit corpus scope |
@@ -34,6 +34,10 @@ The prior app was not executed during the original documentation task. The subse
 | User control | Read the answer and inspect sources | Inspect fields, correct findings, accept/reject proposals, preserve revisions |
 | Main interface | Query API and 3D embedding viewer | Evidence table, draft/claim panel, source viewer, actual run activity |
 | Evaluation | No performance claim established by this review | Annotated extraction/support cases and measured research-task performance |
+
+### Implemented subset as of 5 November 2026
+
+The event-built application accepts a draft research claim with explicitly selected paper IDs, retrieves exact stored passages within that scope, and uses Meta for a draft assessment. A bounded follow-up search can run when evidence is insufficient. Mechanical source checks, insufficient-evidence status, a React review-thread interface, and a run tree are implemented. They remain separate from human review. The inherited corpus, embeddings and UMAP projection are used as foundation and are not newly created results. Saved reviewer corrections, a persistent study comparison table, and export remain planned. See [the contribution manifest](contribution_manifest.md) for paths and verification limits.
 
 ## What makes the difference substantive
 

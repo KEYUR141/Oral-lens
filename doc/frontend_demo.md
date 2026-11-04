@@ -1,6 +1,6 @@
 # Product and presentation frontend
 
-Implemented 29 October 2026. Local React/TypeScript frontend; no deployment or new backend behavior in this change.
+Started 29 October 2026; presentation updated 5 November 2026. Local React/TypeScript frontend; no deployment or new backend behavior in these presentation changes.
 
 ## Visual references
 
@@ -53,7 +53,11 @@ Compare status, assessment, citations and errors, allowing for model variability
 
 ## Presentation content and sources
 
-Four chapters cover disease burden, the research-literature task, the implemented workflow, and the live-product handoff. Previous/next, chapter buttons, arrow keys when focus is outside interactive controls, and an optional browser fullscreen control are available. Responsive layouts and reduced-motion preferences are supported in CSS. Desktop and mobile presentation layouts were checked locally in headless Chrome.
+Six chapters cover sourced disease burden, the research corpus, the literature-review task, the implemented workflow, the earlier-versus-current project comparison, and the live-product handoff. Previous/next, chapter buttons, arrow keys when focus is outside interactive controls, and an optional browser fullscreen control are available. Responsive layouts and reduced-motion preferences are supported in CSS. Desktop and mobile presentation layouts were checked locally in headless Chrome.
+
+The corpus chapter calls the read-only `/database/status` endpoint and shows distinct paper count separately from stored rows. Source cards show row and paper coverage for abstracts, full-text chunks and figure captions. If the backend is unavailable, it explicitly labels the 5 November 2026 read-only inventory as a snapshot. Two example paper titles matching “oral” appear only when the live paper listing responds. The snapshot was rechecked through `scripts.inspect_db status` on 5 November: 146 distinct papers, 4,666 rows, 146 abstract rows, 4,117 full-text rows from 79 papers, and 403 caption rows from 72 papers. These structural counts do not establish scientific validity or completeness.
+
+The comparison chapter uses the inspected [Oral Cancer X baseline](https://github.com/KEYUR141/Oral-Cancer-X-AI-Integrated-Solution/tree/26749ed838fdcade14307e6314f3abf20543f404) and the current event-built workflow. It identifies inherited corpus/embedding/UMAP infrastructure and labels saved corrections, the study comparison table and export as planned. It does not claim those features as implemented.
 
 Statistics are estimates for **2024, both sexes, all ages, lip and oral cavity**. They must not be described as current daily death counts, all head and neck cancers, or prevented deaths attributable to Oral-lens.
 
