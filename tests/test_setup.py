@@ -50,9 +50,45 @@ def test_papers_pagination_and_filter_pass_through(monkeypatch, client):
     assert client.get('/papers?offset=-1').status_code == 422
 
 
+def test_semantic_paper_discovery_deduplicates_and_never_auto_selects(monkeypatch, client):
+    from app import retrieval, visualize
+    lexical = MagicMock(return_value=[
+        {'id': 1, 'paper_id': 'paper-a', 'title': 'A', 'year': 2024, 'source': 'abstract', 'rank': 0.2},
+    ])
+    embed = MagicMock(return_value=[0.1, 0.2])
+    nearest = MagicMock(return_value=[
+        {'id': 1, 'paper_id': 'paper-a', 'title': 'A', 'source': 'abstract', 'similarity': 0.8},
+        {'id': 2, 'paper_id': 'paper-a', 'title': 'A', 'source': 'fulltext', 'similarity': 0.7},
+        {'id': 3, 'paper_id': 'paper-b', 'title': 'B', 'source': 'abstract', 'similarity': 0.6},
+    ])
+    monkeypatch.setattr(retrieval, 'embed_query', embed)
+    monkeypatch.setattr(visualize, 'nearest_rows', nearest)
+    monkeypatch.setattr(inspection, 'search_paper_content', lexical)
+    response = client.post('/papers/search/semantic', json={'query': 'mouse tongue', 'limit': 2})
+    assert response.status_code == 200
+    assert [item['paper_id'] for item in response.json()['items']] == ['paper-a', 'paper-b']
+    assert 'paper_ids' not in response.json()
+    assert [item['match_method'] for item in response.json()['items']] == ['text', 'embedding']
+    lexical.assert_called_once_with('mouse tongue', 2)
+    embed.assert_called_once_with('mouse tongue')
+    nearest.assert_called_once_with([0.1, 0.2], top_k=10)
+    assert client.post('/papers/search/semantic', json={'query': '  '}).status_code == 422
+    assert client.post('/papers/search/semantic', json={'query': 'x' * 301}).status_code == 422
+
+
 def test_missing_paper_returns_404(monkeypatch, client):
     monkeypatch.setattr(inspection, 'paper_detail', lambda paper_id: None)
     assert client.get('/papers/missing').status_code == 404
+
+
+def test_stored_passage_preview_is_read_only_route(monkeypatch, client):
+    operation = MagicMock(return_value={
+        'id': 115, 'paper_id': 'paper-a', 'source': 'abstract', 'chunk_index': 0, 'text': 'Stored excerpt.'
+    })
+    monkeypatch.setattr(inspection, 'passage_by_id', operation)
+    assert client.get('/passages/115').json()['text'] == 'Stored excerpt.'
+    operation.assert_called_once_with(115)
+    assert client.get('/passages/not-an-id').status_code == 422
 
 
 def test_source_filter_rejected_before_database(client):

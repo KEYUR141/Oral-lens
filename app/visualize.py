@@ -32,13 +32,13 @@ def project_query(query_embedding: list[float]) -> list[float]:
 
 def nearest_rows(query_embedding: list[float], top_k: int = 15) -> list[dict]:
     sql = text("""
-        SELECT id, paper_id, title, source,
+        SELECT id, paper_id, title, year, source,
                1 - (embedding <=> CAST(:query_vector AS vector)) AS similarity
         FROM papers
         ORDER BY embedding <=> CAST(:query_vector AS vector)
         LIMIT :top_k
     """)
-    with get_db() as conn:
+    with get_db(read_only=True) as conn:
         rows = conn.execute(sql, {"query_vector": query_embedding, "top_k": top_k}).fetchall()
 
     return [
@@ -46,6 +46,7 @@ def nearest_rows(query_embedding: list[float], top_k: int = 15) -> list[dict]:
             "id":         row.id,
             "paper_id":   row.paper_id,
             "title":      row.title,
+            "year":       row.year,
             "source":     row.source,
             "similarity": round(float(row.similarity), 4),
         }

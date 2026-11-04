@@ -83,6 +83,28 @@ def paper_detail(paper_id):
         return result
 
 
+def search_paper_content(query, limit=12):
+    """Find stored rows containing all indexed query terms, without altering corpus data."""
+    sql = text("""
+        WITH ranked AS (
+            SELECT id, paper_id, title, year, source,
+                   ts_rank_cd(to_tsvector('english', coalesce(title, '') || ' ' ||
+                       coalesce(embedding_text, '')),
+                       plainto_tsquery('english', :query)) AS rank
+            FROM papers
+            WHERE to_tsvector('english', coalesce(title, '') || ' ' ||
+                coalesce(embedding_text, '')) @@ plainto_tsquery('english', :query)
+        )
+        SELECT id, paper_id, title, year, source, rank
+        FROM ranked ORDER BY rank DESC, id LIMIT :limit
+    """)
+    with get_db(read_only=True) as connection:
+        _require_papers(connection)
+        return [dict(row) for row in connection.execute(sql, {
+            'query': query, 'limit': min(limit * 5, 100)
+        }).mappings()]
+
+
 def paper_passages(paper_id, limit=20, offset=0, source=None):
     if not 1 <= limit <= 100 or offset < 0:
         raise ValueError('limit must be 1?100 and offset must be nonnegative.')
@@ -100,3 +122,14 @@ def paper_passages(paper_id, limit=20, offset=0, source=None):
         return {'paper_id': paper_id, 'limit': limit, 'offset': offset,
                 'items': [dict(row) for row in rows],
                 'provenance_note': 'Inherited rows do not yet establish document versions or page-level provenance.'}
+
+
+def passage_by_id(row_id):
+    with get_db(read_only=True) as connection:
+        _require_papers(connection)
+        row = connection.execute(text("""
+            SELECT id, paper_id, source, chunk_index, title,
+                   COALESCE(embedding_text, abstract) AS text
+            FROM papers WHERE id = :row_id LIMIT 1
+        """), {'row_id': row_id}).mappings().first()
+        return dict(row) if row else None

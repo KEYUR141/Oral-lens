@@ -13,6 +13,9 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 const freshThread = (): Thread => ({ id: crypto.randomUUID(), title: 'New review thread', createdAt: new Date().toISOString(), turns: [] })
+type PaperDetail = Paper & { abstract: string | null; rows_by_source: { source: string; rows: number }[] }
+type StoredPassage = { id: number; paper_id: string; source: string; chunk_index: number | null; text: string | null }
+type SemanticMatch = Paper & { id: number; similarity?: number; match_method: 'text' | 'embedding' }
 function loadHistory() {
   try { return { threads: decodeHistory(localStorage.getItem(HISTORY_KEY)), blocked: false } }
   catch { return { threads: [], blocked: true } }
@@ -54,7 +57,16 @@ export default function Workbench() {
   const [selectedNode, setSelectedNode] = useState('outcome')
   const [papers, setPapers] = useState<Paper[]>([])
   const [selectedPapers, setSelectedPapers] = useState<Paper[]>(() => threads[0].turns.at(-1)?.papers ?? [])
-  const [scopeOpen, setScopeOpen] = useState(false)
+  const [scopeOpen, setScopeOpen] = useState(!threads[0].turns.length)
+  const [searchMode, setSearchMode] = useState<'title' | 'topic'>('title')
+  const [semanticMatches, setSemanticMatches] = useState<SemanticMatch[]>([])
+  const [searchNote, setSearchNote] = useState('')
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const [preview, setPreview] = useState<PaperDetail | null>(null)
+  const [previewPassages, setPreviewPassages] = useState<StoredPassage[]>([])
+  const [matchedPassage, setMatchedPassage] = useState<StoredPassage | null>(null)
+  const [previewError, setPreviewError] = useState('')
+  const [previewLoading, setPreviewLoading] = useState(false)
   const [query, setQuery] = useState('')
   const [offset, setOffset] = useState(0)
   const [loadedQuery, setLoadedQuery] = useState('')
@@ -66,6 +78,7 @@ export default function Workbench() {
   const storageBlocked = useRef(initial.blocked)
   const inFlight = useRef(false)
   const searchSequence = useRef(0)
+  const previewSequence = useRef(0)
   const activeThread = threads.find(t => t.id === threadId) ?? threads[0]
   const activeTurn = activeThread.turns.find(t => t.id === turnId) ?? activeThread.turns.at(-1)
 
@@ -84,11 +97,37 @@ export default function Workbench() {
     } catch (error) { if (sequence === searchSequence.current) setPaperError((error as Error).message) }
     finally { if (sequence === searchSequence.current) setLoading(false) }
   }
+  async function searchTopic() {
+    const sequence = ++searchSequence.current
+    setLoading(true); setPaperError('')
+    try {
+      const response = await api<{ items: SemanticMatch[]; note: string }>('/papers/search/semantic', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query.trim(), limit: 12 }),
+      })
+      if (sequence === searchSequence.current) { setSemanticMatches(response.items); setSearchNote(response.note) }
+    } catch (error) { if (sequence === searchSequence.current) setPaperError((error as Error).message) }
+    finally { if (sequence === searchSequence.current) setLoading(false) }
+  }
+  async function showPreview(paperId: string, matchId?: number) {
+    const sequence = ++previewSequence.current
+    if (previewId === paperId) { setPreviewId(null); setPreview(null); setPreviewPassages([]); setMatchedPassage(null); return }
+    setPreviewId(paperId); setPreview(null); setPreviewPassages([]); setMatchedPassage(null); setPreviewError(''); setPreviewLoading(true)
+    try {
+      const [detail, passages, matched] = await Promise.all([
+        api<PaperDetail>(`/papers/${encodeURIComponent(paperId)}`),
+        api<{ items: StoredPassage[] }>(`/papers/${encodeURIComponent(paperId)}/passages?limit=3`),
+        matchId ? api<StoredPassage>(`/passages/${matchId}`) : Promise.resolve(null),
+      ])
+      if (sequence === previewSequence.current) { setPreview(detail); setPreviewPassages(passages.items); setMatchedPassage(matched && matched.id === matchId && matched.paper_id === paperId ? matched : null) }
+    } catch (error) { if (sequence === previewSequence.current) setPreviewError((error as Error).message) }
+    finally { if (sequence === previewSequence.current) setPreviewLoading(false) }
+  }
   useEffect(() => { void loadPapers(); return () => { searchSequence.current++ } }, [])
 
   function selectThread(thread: Thread) {
     setThreadId(thread.id); setTurnId(thread.turns.at(-1)?.id ?? null); setSelectedNode('outcome')
-    setSelectedPapers(thread.turns.at(-1)?.papers ?? []); setClaim(''); setScopeOpen(false)
+    setSelectedPapers(thread.turns.at(-1)?.papers ?? []); setClaim(''); setScopeOpen(!thread.turns.length)
   }
   function newThread() {
     const thread = freshThread()
@@ -135,6 +174,18 @@ export default function Workbench() {
     <section className="thread-workspace"><header className="conversation-heading"><div><h1>{activeThread.turns.length ? 'Review thread' : 'Start with a research claim.'}</h1></div><span className="tag">Local history</span></header>
       {storageWarning && <p className="notice error" role="status">{storageWarning}</p>}
 
+      <div className="library-toggle"><button type="button" className="text-button" aria-expanded={scopeOpen} onClick={() => setScopeOpen(!scopeOpen)}><Icon name="document" /> Research paper library {selectedPapers.length ? `· ${selectedPapers.length} selected` : ''}</button><span className="small muted">Existing corpus · reviewer selects scope</span></div>
+      {scopeOpen && <section className="scope-picker document-library" aria-label="Research paper library">
+        <div className="library-tabs" role="group" aria-label="Document search mode"><button type="button" className={searchMode === 'title' ? 'active' : ''} onClick={() => { searchSequence.current++; previewSequence.current++; setPreviewId(null); setLoading(false); setPaperError(''); setSearchMode('title'); setQuery('') }}>Browse titles</button><button type="button" className={searchMode === 'topic' ? 'active' : ''} onClick={() => { searchSequence.current++; previewSequence.current++; setPreviewId(null); setSemanticMatches([]); setSearchNote(''); setLoading(false); setPaperError(''); setSearchMode('topic'); setQuery('') }}>Search document content</button></div>
+        <label htmlFor="scope-query">{searchMode === 'title' ? 'Search paper titles' : 'Describe the research topic'}</label>
+        <div className="search"><input id="scope-query" value={query} maxLength={300} placeholder={searchMode === 'title' ? 'e.g. SLC38A1' : 'e.g. mouse tongue epithelium proliferation'} onChange={e => setQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); if (searchMode === 'title') void loadPapers(query); else if (query.trim().length >= 3) void searchTopic() } }} /><button type="button" className="icon-button" disabled={loading || (searchMode === 'topic' && query.trim().length < 3)} onClick={() => { if (searchMode === 'title') void loadPapers(query); else void searchTopic() }} aria-label={searchMode === 'title' ? 'Search paper titles' : 'Search document content'}><Icon name="search" /></button></div>
+        {searchMode === 'topic' && <p className="library-note">{searchNote || 'Stored text matches appear first, then inherited embedding suggestions. Inspect excerpts before selecting papers.'}</p>}
+        {selectedPapers.length > 0 && <div className="selected-list">{selectedPapers.map(p => <button type="button" key={p.paper_id} onClick={() => setSelectedPapers(previous => previous.filter(item => item.paper_id !== p.paper_id))}>{p.title.slice(0, 35)}… <Icon name="close" /></button>)}</div>}
+        {paperError ? <p className="notice error" role="status">{paperError}</p> : loading ? <p className="small muted">Searching papers...</p> : <div className="paper-list">{(searchMode === 'title' ? papers : semanticMatches).map(p => <div className="library-paper" key={p.paper_id}><label className="paper"><input type="checkbox" checked={selectedPapers.some(item => item.paper_id === p.paper_id)} disabled={selectedPapers.length >= 10 && !selectedPapers.some(item => item.paper_id === p.paper_id)} onChange={e => setSelectedPapers(previous => e.target.checked ? [...previous, { paper_id: p.paper_id, title: p.title, year: p.year ?? null, source: p.source }] : previous.filter(item => item.paper_id !== p.paper_id))} /><span><span className="paper-title">{p.title}</span><span className="paper-meta">{p.year ?? 'Year unknown'}{searchMode === 'topic' && 'match_method' in p ? ` · ${p.match_method === 'text' ? 'Text match' : 'Embedding suggestion'} · ${p.source}` : ''}</span></span></label><button type="button" className="text-button preview-button" onClick={() => void showPreview(p.paper_id, searchMode === 'topic' ? (p as SemanticMatch).id : undefined)} aria-expanded={previewId === p.paper_id}>{previewId === p.paper_id ? 'Close' : 'Preview'}</button></div>)}{!(searchMode === 'title' ? papers : semanticMatches).length && <p className="small muted">{searchMode === 'title' ? 'No matching papers.' : 'Describe a topic and search the stored documents.'}</p>}</div>}
+        {searchMode === 'title' && <div className="pagination"><button type="button" className="text-button" disabled={loading || offset === 0} onClick={() => void loadPapers(loadedQuery, offset - 10)}>Previous</button><span className="small muted">{selectedPapers.length}/10 selected</span><button type="button" className="text-button" disabled={loading || papers.length < 10} onClick={() => void loadPapers(loadedQuery, offset + 10)}>Next</button></div>}
+        {searchMode === 'topic' && <p className="small muted">{selectedPapers.length}/10 selected · Ranking is from stored rows; review the source text before making a claim.</p>}
+        {previewId && <section className="paper-preview" aria-label="Stored document preview">{previewLoading ? <p>Loading stored text...</p> : previewError ? <p className="notice error">{previewError}</p> : preview && <><h3>{preview.title}</h3><p className="small muted">{preview.year ?? 'Year unknown'} · {preview.rows_by_source.map(row => `${row.rows} ${row.source}`).join(' · ')}</p>{matchedPassage && <><h4>Matched stored row</h4><div className="preview-passage"><p className="small muted">Row #{matchedPassage.id} · {matchedPassage.source} · chunk {matchedPassage.chunk_index ?? 'unknown'}</p><p>{matchedPassage.text || 'No text stored in this row.'}</p></div></>}<h4>Stored abstract</h4><p className="preview-text">{preview.abstract || 'No abstract stored for this paper.'}</p><h4>Other stored passages</h4>{previewPassages.filter(passage => passage.id !== matchedPassage?.id).map(passage => <div className="preview-passage" key={passage.id}><p className="small muted">Row #{passage.id} · {passage.source} · chunk {passage.chunk_index ?? 'unknown'}</p><p>{passage.text || 'No text stored in this row.'}</p></div>)}<p className="small muted">Preview shows stored excerpts, not a complete verified paper or page-level source.</p></>}</section>}
+      </section>}
       <div className="conversation" aria-label="Claim and review messages" aria-live="polite">
         {!activeThread.turns.length && <div className="thread-welcome"><Icon name="lens" /><h2>One claim. A visible evidence trail.</h2></div>}
         {activeThread.turns.map((turn, index) => <article className={`conversation-turn ${activeTurn?.id === turn.id ? 'active' : ''}`} key={turn.id}>
@@ -149,12 +200,6 @@ export default function Workbench() {
         </article>)}
       </div>
       <form className="thread-composer" onSubmit={submit}>
-        <div className="composer-scope"><button type="button" className="text-button" aria-expanded={scopeOpen} onClick={() => setScopeOpen(!scopeOpen)}><Icon name="document" /> {selectedPapers.length ? `${selectedPapers.length} papers selected` : 'Choose papers'} <Icon name="search" /></button></div>
-        {scopeOpen && <div className="scope-picker"><label htmlFor="scope-query">Search paper titles</label><div className="search"><input id="scope-query" value={query} maxLength={300} onChange={e => setQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); void loadPapers(query) } }} /><button type="button" className="icon-button" disabled={loading} onClick={() => void loadPapers(query)} aria-label="Search paper titles"><Icon name="search" /></button></div>
-          {selectedPapers.length > 0 && <div className="selected-list">{selectedPapers.map(p => <button type="button" key={p.paper_id} onClick={() => setSelectedPapers(previous => previous.filter(item => item.paper_id !== p.paper_id))}>{p.title.slice(0, 35)}... <Icon name="close" /></button>)}</div>}
-          {paperError ? <p className="notice error">{paperError}</p> : loading ? <p>Loading papers...</p> : <div className="paper-list">{papers.map(p => <label className="paper" key={p.paper_id}><input type="checkbox" checked={selectedPapers.some(item => item.paper_id === p.paper_id)} disabled={selectedPapers.length >= 10 && !selectedPapers.some(item => item.paper_id === p.paper_id)} onChange={e => setSelectedPapers(previous => e.target.checked ? [...previous, p] : previous.filter(item => item.paper_id !== p.paper_id))} /><span className="paper-title">{p.title}</span></label>)}{!papers.length && <p>No matching papers.</p>}</div>}
-          <div className="pagination"><button type="button" className="text-button" disabled={loading || offset === 0} onClick={() => void loadPapers(loadedQuery, offset - 10)}>Previous</button><span className="small muted">{selectedPapers.length}/10 selected</span><button type="button" className="text-button" disabled={loading || papers.length < 10} onClick={() => void loadPapers(loadedQuery, offset + 10)}>Next</button></div>
-        </div>}
         <label className="sr-only" htmlFor="thread-claim">Research claim</label><textarea id="thread-claim" value={claim} minLength={5} maxLength={2000} required onChange={e => setClaim(e.target.value)} placeholder="Write a research claim to inspect..." />
         <div className="composer-footer"><button className="primary" disabled={busy || !selectedPapers.length || claim.trim().length < 5}>{busy ? 'Review running...' : 'Send review'} <Icon name="right" /></button></div>
       </form>

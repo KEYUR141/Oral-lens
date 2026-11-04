@@ -38,6 +38,8 @@ Medical-advice requests leave this flow with a concise out-of-scope response. Em
 
 ### 1. Create and scope the review
 
+Current local demo: the user can browse the stored paper catalogue, filter titles, or type a topic to discover stored content. Topic search first ranks indexed text matches and then fills with inherited embedding candidates; each result can open the exact stored matched row. The user manually selects up to ten papers. Search results do not themselves become review evidence, and the selected paper IDs alone define the subsequent claim-review scope. Abstracts and extracted rows are previews, not complete verified PDFs.
+
 The user enters a draft paragraph or question and selects papers or corpus filters. Show the corpus identity and available date coverage. Save the original input and scope. The user can edit the proposed claims or inclusion criteria before starting.
 
 This step does not promise an exhaustive literature search or a systematic review. The MVP uses the curated corpus, with no autonomous import of arbitrary websites or patient files.

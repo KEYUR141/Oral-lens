@@ -31,11 +31,12 @@ Vite's existing `/api` proxy forwards to FastAPI on port 8000. Production hostin
 ## Product behavior
 
 1. Load actual corpus counts from GET `/database/status`; show an unavailable state instead of invented counts.
-2. Search paper titles with GET `/papers` and page through twelve papers at a time. Keep up to ten selected papers across pages. Stale search responses cannot replace newer results.
-3. Enter a 5-2,000-character research claim and POST it with selected paper IDs to `/reviews/assess`. Inputs that define the run are disabled during execution.
-4. Show waiting state, transport failure, or the actual returned domain result. HTTP 200 alone does not establish success: failed, out-of-scope and insufficient-evidence statuses remain visible.
-5. Display model support, mechanical source checks and human review independently. Render returned text as React text, never raw HTML. Expand actual passages and retain truncated-excerpt labels. Citation links open the referenced excerpt; unknown citations in a failed result remain visibly failed.
-6. Inspect response JSON, model/usage and completed events. Copy request JSON to compare the exact same request with CLI/API docs. A new request clears the previous result; changing scope/claim clears a stale assessment.
+2. A new thread opens the existing paper library above the claim composer. Browse ten papers at a time or filter titles with GET `/papers`. The separate "Search document content" tab submits a research-topic phrase to POST `/papers/search/semantic`: exact full-text indexed term matches appear first, followed by inherited embedding suggestions. This is discovery within the stored corpus, not a model assessment or exhaustive literature search. The UI labels each match type and does not automatically select papers.
+3. Preview a paper's stored abstract and first three passages through GET `/papers/{paper_id}` and `/papers/{paper_id}/passages`. Topic search also opens its exact matched stored row through GET `/passages/{row_id}`. These excerpts lack verified PDF page or document-version provenance. Manually select up to ten papers; this selected scope alone is sent to the claim-review workflow. Search and preview calls do not spend Meta API credits. Newer search/preview responses supersede stale ones.
+4. Enter a 5-2,000-character research claim and POST it with selected paper IDs to `/reviews/assess`.
+5. Show waiting state, transport failure, or the actual returned domain result. HTTP 200 alone does not establish success: failed, out-of-scope and insufficient-evidence statuses remain visible.
+6. Display model support, mechanical source checks and human review independently. Render returned text as React text, never raw HTML. Expand actual passages and retain truncated-excerpt labels. Citation links open the referenced excerpt; unknown citations in a failed result remain visibly failed.
+7. Inspect response JSON, model/usage and completed events. Copy request JSON to compare the exact same request with CLI/API docs. Each submitted claim captures its own scope and result in browser-local history.
 
 There is no simulated progress or hard-coded model result. Backend events appear after the synchronous request completes. No acceptance buttons, saved reviews or export functionality are implied. Network errors leave the run outcome unconfirmed; inspect the backend before retrying a potentially billable call.
 
