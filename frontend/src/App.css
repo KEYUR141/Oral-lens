@@ -992,3 +992,10 @@ button .icon, a .icon { width: 16px; height: 16px; }
 .evidence-glyph .icon { width: 24px; height: 24px; }
 .selected-list .icon { width: 12px; height: 12px; }
 .icon-button .icon { width: 18px; height: 18px; }
+
+.search-trail { margin: 24px 0; }
+.search-trail h3 { font-size: 14px; }
+.search-trail article { border-left: 2px solid #438dec; background: #17212f; padding: 16px; margin: 10px 0; border-radius: 0 10px 10px 0; }
+.search-trail article p { margin-bottom: 8px; font-size: 13px; overflow-wrap: anywhere; }
+.search-trail article .eyebrow { font-size: 10px; }
+.search-trail article .small { font-size: 11px; }

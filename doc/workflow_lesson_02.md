@@ -53,3 +53,7 @@ Read the no-new-evidence test first, then the successful reassessment test. Obse
 Eleven new offline cases cover new evidence, repeated/empty follow-up results, the hard search budget, out-of-scope/changing passages, search failure, invalid model proposals and invalid citations. All 69 backend tests pass. These synthetic fixtures verify control flow, not retrieval quality or scientific assessment. The prior single-search user-supplied run succeeded live; the new two-search path has not been live-verified.
 
 The model's proposed query is fallible. A filtered search cannot execute instructions or access other papers, but its usefulness and resistance to adversarial content require evaluation. No independent research-quality improvement, human-review persistence or submission readiness is established.
+
+## Live follow-up and format repair: 30 October 2026
+
+The shared workflow completed a real two-search comparison run: one new passage on follow-up, then insufficient_evidence/search_budget_exhausted. The review calls now use Meta-native JSON-schema response_format, including cross-field gap/query constraints; Python checks remain independent. Schema echoes and inconsistent model proposals encountered during validation were retained as failures. See [interface validation](interface_validation.md) for transport distinctions and retrieval-coverage limits; the earlier unverified status describes implementation day. Native model tool calling is still not implemented.

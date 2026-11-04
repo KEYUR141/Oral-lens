@@ -29,6 +29,22 @@ uv run python test_muse_llm.py
 
 The script sends a fixed connectivity prompt, requests at most 128 output tokens by default with minimal reasoning effort, and uses a bounded timeout. It does not read the database or send research/patient documents. It prints model ID, a bounded response, reported token usage, and elapsed time on success. An optional `--max-tokens` value between 16 and 512 is available if a model uses the initial budget without producing visible text. Each invocation can consume API credits; importing the script and `--check-config` do not send a request.
 
+### Launch Codex with the separate Meta coding key
+
+Keep the coding key in the ignored project file `.env.meta`:
+
+```dotenv
+Meta_Muse_API_KEY=
+```
+
+The provider profile remains at `C:\Users\<user>\.codex\meta.config.toml`, because Codex resolves named profiles from the user Codex directory. From the repository root, launch it with:
+
+```powershell
+.\scripts\start_meta_codex.cmd
+```
+
+The command wrapper runs the PowerShell launcher without requiring a permanent execution-policy change. The launcher reads only `Meta_Muse_API_KEY`, verifies the `meta` profile, and resolves Codex either from `PATH` or the newest installed VS Code OpenAI extension. It sets the key for the child process and removes it from the launcher process afterward. This bypasses the `uv run ... codex` executable-resolution problem. Never commit `.env.meta` or place the literal key in `env_key`; `env_key` must be the variable name `Meta_Muse_API_KEY`.
+
 Exit codes: 0 means a successful completion or valid check-only configuration; 1 means a provider/network/protocol failure; 2 means missing/invalid configuration. Empty or malformed HTTP-200 output does not count as working generation. The script is manual; the normal pytest suite does not execute a live API call.
 
 ## Shared backend client
@@ -70,3 +86,7 @@ Documentation was consulted on 29 October; actual account/model availability mus
 ## Subsequent participant-reported live result
 
 On 29 October the participant supplied successful smoke output: muse-spark-1.3, MUSE_OK, 33 total tokens, finish_reason stop, 2.97 seconds. This establishes basic text generation for that run; the new review graph, native structured output and tool calling remain unverified live. Historical key-absent statements above describe the earlier setup, not the current credential state.
+
+## Structured review output: 30 October 2026
+
+Review calls now pass a JSON schema using response_format through the shared requests transport. Live muse-spark-1.3 accepted scope and assessment schemas, including cross-field anyOf constraints. Pydantic and source validation remain mandatory. Ordinary smoke completions omit response_format. See [interface validation](interface_validation.md) for actual successes, failed runs and limits.

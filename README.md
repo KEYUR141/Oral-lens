@@ -1,62 +1,186 @@
 # Oral-lens
 
-An oral cancer literature review workspace for researchers and student literature reviewers. The planned product compares studies, links findings to source passages, and helps researchers check draft conclusions and export a reviewed evidence brief.
+Oral-lens is a Meta-powered evidence-review workspace for oral cancer researchers and student literature reviewers. A reviewer selects papers, enters a research claim, and receives a source-linked draft assessment that can explicitly stop with insufficient evidence.
 
-**Status: inherited backend, local database tooling, frontend starter, and Meta completion client, 29 October 2026.** The Meta smoke test and shared answer client are implemented; live model access is not yet verified. The evidence-review workflow, complete React workspace, benchmark results, and deployment remain planned.
+It is a literature-research tool. It does not accept patient cases or provide diagnosis, screening, prognosis, treatment recommendations, or medical advice.
 
-## Test Meta Muse
+## Why it exists
 
-Set `Meta_Muse_API_KEY` locally in `.env` and choose `Meta_Muse_MODEL` (the example uses `muse-spark-1.3`). Then run:
+Ordinary retrieval chat can produce fluent answers while hiding whether the selected papers actually support a statement. Oral-lens keeps the review process inspectable:
 
-```powershell
-uv run python test_muse_llm.py --check-config
-uv run python test_muse_llm.py
+- retrieval is restricted to papers selected by the reviewer;
+- exact passages retain local source identity and hashes;
+- Meta returns a typed assessment with limitations and cited passage IDs;
+- Python checks cited IDs and exact quotations before displaying the draft;
+- a bounded LangGraph workflow may run one focused follow-up search;
+- repeated or unavailable evidence produces an explicit stopping reason;
+- the interface separates model assessment, mechanical source checks, and human-review status;
+- browser-local threads preserve the original claim, paper scope, results, and execution trace.
+
+Source validation does not prove scientific correctness. Results remain unreviewed drafts, and missing evidence in the inspected excerpts does not prove that evidence is absent from the full paper or wider literature.
+
+## Working demo flow
+
+1. Search the connected corpus and select up to ten papers.
+2. Enter a literature claim or comparison question.
+3. Inspect the scope check, selected-paper retrieval, Meta assessment, source checks, and any bounded follow-up search.
+4. Open the exact passages cited by the assessment.
+5. Review the terminal state, limitations, and unresolved evidence gaps.
+6. Revisit prior runs through browser-local thread history and the execution tree.
+
+The current MVP does not persist researcher corrections to the server, generate a reviewed export, or claim systematic-review coverage.
+
+## New hackathon work
+
+The event-built product work includes:
+
+- a shared Meta Model API client with bounded requests, structured-output support, and sanitized failures;
+- typed claim-review schemas and native JSON-schema constraints;
+- a read-only selected-paper retrieval tool;
+- a LangGraph workflow for scope checking, retrieval, assessment, source validation, and bounded follow-up search;
+- explicit insufficient-evidence, repeated-evidence, validation-failure, and budget-exhaustion states;
+- a CLI that runs the same review workflow as the HTTP API;
+- a React product workspace with paper selection, review threads, an execution tree, and focused evidence inspection;
+- a separate presentation view for the problem, workflow, and live-product handoff;
+- offline backend and frontend behavioral checks.
+
+See the [contribution manifest](doc/contribution_manifest.md) for dates, paths, classifications, verification evidence, and limitations.
+
+## Inherited foundation
+
+Oral-lens builds on the participant's earlier [Oral Cancer X](https://github.com/KEYUR141/Oral-Cancer-X-AI-Integrated-Solution) project. The inherited foundation includes the FastAPI/PostgreSQL/pgvector corpus infrastructure, ingestion and embedding foundations, local paper data, and the historical 3D visualization.
+
+Those components are disclosed as inherited and are not presented as new hackathon functionality. The exact source baseline and imported-file hashes are recorded in [the import manifest](doc/import_manifest.json).
+
+## Architecture
+
+```text
+React + TypeScript
+        |
+        v
+FastAPI review API
+        |
+        v
+Bounded LangGraph workflow
+   |                 |
+   v                 v
+Meta Model API   LangChain retrieval tool
+                         |
+                         v
+                 PostgreSQL + pgvector
 ```
 
-The first command checks settings without a request; the second makes one bounded API call and reports success or a sanitized provider/network error. See [Meta setup](doc/meta_setup.md). No billing verification is bypassed.
+Python—not the model—controls paper scope, call budgets, passage validation, terminal states, and human-review authority. The connected corpus is accessed read-only by the review workflow.
 
-## Connect and inspect your database
+## Run locally
 
-The configured database was checked read-only: **146 papers, 4,666 rows**. See the [inventory and coverage report](doc/database_inventory.md). Keep credentials in the ignored root `.env` and `DB_READ_ONLY=true` while inspecting. The isolated `.venv` is now managed by uv.
+Requirements:
+
+- Python 3.13 and [uv](https://docs.astral.sh/uv/)
+- Node.js and npm
+- PostgreSQL with pgvector and the configured local corpus
+- a Meta Model API key
+
+Create an ignored root `.env` from `.env.example`, then set the local database values and:
+
+```dotenv
+Meta_Muse_API_KEY=
+Meta_Muse_MODEL=muse-spark-1.3
+DB_READ_ONLY=true
+```
+
+Never commit the real `.env`.
+
+Install and start the backend:
 
 ```powershell
 uv sync --locked
-uv run python -m scripts.inspect_db status
-uv run python -m scripts.inspect_db papers --limit 10
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/docs` for database status, paper metadata, and passage browsing. No LLM key is needed. See [local setup](doc/local_setup.md) for dependency installation, connection options, a dry-run loader for the copied abstract embeddings, and explicit ingestion commands.
-
-## Frontend starter
-
-The [frontend](frontend/README.md) contains React, TypeScript, Vite, and Three.js. Start it in a separate terminal:
+In a second terminal, start the frontend:
 
 ```powershell
 cd frontend
+npm.cmd ci
 npm.cmd run dev
 ```
 
-Open `http://127.0.0.1:5173`. The development server proxies `/api/*` to the backend on port 8000. Use `npm.cmd ci` to install the locked frontend dependencies on a fresh checkout and `npm.cmd run build` to type-check and build. The study-review interface and React-based 3D scene remain future work.
+Open:
 
-## Project documentation
+- Product workspace: `http://127.0.0.1:5173/#product`
+- Presentation mode: `http://127.0.0.1:5173/#present`
+- FastAPI documentation: `http://127.0.0.1:8000/docs`
 
-- [Documentation index and MVP](doc/README.md)
-- [Local environment and database setup](doc/local_setup.md)
-- [Meta Muse configuration and smoke test](doc/meta_setup.md)
-- [uv project workflow](doc/uv_workflow.md)
-- [Existing database inventory](doc/database_inventory.md)
-- [Codex with Meta coding models](doc/coding_models.md)
+Submitting a claim uses Meta API credits. Do not enter patient information.
+
+## CLI review
+
+List papers:
+
+```powershell
+uv run python -m scripts.review_cli papers --limit 12 --search "tongue"
+```
+
+Run an interactive review:
+
+```powershell
+uv run python -m scripts.review_cli review
+```
+
+Validate input without using the database or Meta API:
+
+```powershell
+uv run python -m scripts.review_cli review --check-only
+```
+
+## Verification
+
+Run the offline backend suite:
+
+```powershell
+uv run --locked --offline pytest -q
+```
+
+Run the frontend checks:
+
+```powershell
+cd frontend
+npm.cmd run test:session
+npm.cmd run build
+```
+
+Submission audit on 4 November 2026:
+
+- 70 backend tests passed;
+- session-history and execution-tree checks passed;
+- TypeScript and the Vite production build passed;
+- `.env` and `.env.meta` were confirmed ignored;
+- Meta configuration was detected locally without sending a request.
+
+These checks establish software behavior covered by the tests. They are not clinical validation or a scientific-quality benchmark.
+
+## Documentation
+
+- [Hackathon execution plan](doc/hackathon_execution_plan.md)
+- [Rules, judging rubric, and submission checklist](doc/hackathon_rules.md)
+- [Current interface validation record](doc/interface_validation.md)
+- [Workflow lesson 1](doc/workflow_lesson_01.md)
+- [Bounded follow-up workflow](doc/workflow_lesson_02.md)
+- [Review threads and execution tree](doc/session_threads.md)
 - [Technology stack](doc/tech_stack.md)
-- [Differences from Oral Cancer X](doc/existing_product_diff.md)
-- [User flow, AI tools, and failure behavior](doc/flow.md)
-- [Hackathon rules, judging, and submission checks](doc/hackathon_rules.md)
-- [Inherited and new contribution manifest](doc/contribution_manifest.md)
+- [Product differentiation](doc/existing_product_diff.md)
+- [User and AI workflow](doc/flow.md)
+- [Database inventory](doc/database_inventory.md)
+- [Local setup](doc/local_setup.md)
+- [Meta setup](doc/meta_setup.md)
+- [Contribution manifest](doc/contribution_manifest.md)
 
-## Codex instructions
+## Current limitations
 
-Start with [AGENTS.md](AGENTS.md). The repository skill is [oral-lens-hackathon](.agents/skills/oral-lens-hackathon/SKILL.md); it covers implementation, documentation, evaluation, and submission review for this project. Open Codex in this repository so its repository guidance and skill can be discovered.
-
-## Existing foundation
-
-The earlier [Oral Cancer X project](https://github.com/KEYUR141/Oral-Cancer-X-AI-Integrated-Solution) supplies the inherited implementation, imported at the participant's explicit request. Exact source paths/hashes and local-only copied assets are recorded in [import_manifest.json](doc/import_manifest.json). Local data, model artifacts, credentials, and the virtual environment are ignored by Git. This copy does not establish hackathon reuse approval or third-party asset redistribution rights; keep those questions separate from local development.
+- No public hosted deployment is included.
+- Review results and thread history are local drafts; thread history uses browser storage.
+- Researcher corrections, durable revision history, structured study comparison, and reviewed export remain future work.
+- Retrieval quality has not been established through a scientific benchmark.
+- The historical visualization and corpus foundation are inherited.
+- Source redistribution rights and hackathon interpretation of Indie reuse must be handled independently of the software checks.

@@ -53,6 +53,17 @@ def test_completion_uses_meta_endpoint_and_bounded_request(configured, monkeypat
     post.assert_called_once()
 
 
+def test_structured_output_schema_is_sent_as_response_format(configured, monkeypatch):
+    schema = {'type': 'object', 'properties': {'decision': {'type': 'string'}}, 'required': ['decision']}
+    post = MagicMock(return_value=response(200, {
+        'choices': [{'message': {'content': '{"decision":"literature_review"}'}, 'finish_reason': 'stop'}]}))
+    monkeypatch.setattr(muse.requests, 'post', post)
+    muse.complete([{'role': 'user', 'content': 'Classify this research claim.'}], response_schema=schema)
+    assert post.call_args.kwargs['json']['response_format'] == {
+        'type': 'json_schema', 'json_schema': {'name': 'review_result', 'schema': schema}}
+    post.assert_called_once()
+
+
 @pytest.mark.parametrize('status', [401, 402, 403, 404, 429, 500])
 def test_provider_error_is_not_retried_and_key_is_redacted(configured, monkeypatch, status):
     post = MagicMock(return_value=response(status, {'error': {

@@ -71,16 +71,21 @@ def _error_details(response, api_key):
 
 
 def complete(messages: list[dict], *, max_tokens: int = 1500,
-             reasoning_effort: str = 'minimal', timeout: float = 60) -> MuseCompletion:
+             reasoning_effort: str = 'minimal', timeout: float = 60,
+             response_schema: dict | None = None) -> MuseCompletion:
     config = get_muse_configuration()
     if not 1 <= max_tokens <= 4096 or not 0 < timeout <= 120:
         raise ValueError('Use 1–4096 output tokens and a timeout of 1–120 seconds.')
+    payload = {'model': config.model, 'messages': messages,
+               'max_tokens': max_tokens, 'reasoning_effort': reasoning_effort}
+    if response_schema is not None:
+        payload['response_format'] = {'type': 'json_schema', 'json_schema': {
+            'name': 'review_result', 'schema': response_schema}}
     try:
         response = requests.post(
             META_CHAT_URL,
             headers={'Authorization': f'Bearer {config.api_key}', 'Content-Type': 'application/json'},
-            json={'model': config.model, 'messages': messages,
-                  'max_tokens': max_tokens, 'reasoning_effort': reasoning_effort},
+            json=payload,
             timeout=(10, timeout),
             allow_redirects=False,
         )

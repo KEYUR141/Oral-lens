@@ -187,4 +187,8 @@ def test_scope_budget_and_invalid_json_diagnostic():
     result = build_review_graph(Mock(), generate).invoke({'request': ReviewRequest(
         claim='Compare study methods.', paper_ids=['p1'])})['result']
     assert generate.call_args.kwargs['max_tokens'] == 512
-    assert result.diagnostics == [{'stage': 'scope', 'code': 'invalid_model_json'}]
+    assert result.diagnostics[0]['code'] == 'invalid_model_json'
+    issues = json.loads(result.diagnostics[0]['validation_issues'])
+    assert {'field': 'decision', 'type': 'missing'} in issues
+    assert 'unexpected' in {issue['field'] for issue in issues}
+    assert all(set(issue) == {'field', 'type'} for issue in issues)

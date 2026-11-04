@@ -8,6 +8,8 @@ For implementation, product documentation, evaluation, or submission work, read 
 
 Use [doc/README.md](doc/README.md) to route to the stack, product differences, flow, and contribution record. Inherited backend code and new inspection/setup tooling are now present; a first non-persistent Meta claim-review graph is implemented; the full review workspace remains planned. Read [doc/local_setup.md](doc/local_setup.md) for actual commands and [doc/uv_workflow.md](doc/uv_workflow.md) for dependency management. Use `uv run pytest -q` for setup checks. Inspect the current tree before claiming other features exist.
 
+Before planning or implementing the next hackathon slice, read [doc/hackathon_execution_plan.md](doc/hackathon_execution_plan.md). It is the task-order and acceptance-criteria control document; task-specific contracts and the contribution manifest remain authoritative where linked.
+
 ## Project invariants
 
 - Keep the product within literature research. Do not implement medical advice, patient diagnosis/screening/triage, individual risk/prognosis, or treatment recommendations.

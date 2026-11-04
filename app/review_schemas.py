@@ -2,6 +2,7 @@
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
+from pydantic_core import PydanticCustomError
 
 
 class StrictModel(BaseModel):
@@ -56,11 +57,11 @@ class Assessment(StrictModel):
     def coherent_search_proposal(self):
         if self.needs_more_evidence:
             if not self.missing_information or not self.follow_up_query:
-                raise ValueError('An evidence gap requires a specific missing item and search query.')
+                raise PydanticCustomError('gap_requires_query', 'An evidence gap requires a specific missing item and search query.')
             if self.support not in {'partially_supported', 'insufficient_evidence'}:
-                raise ValueError('A conclusive assessment cannot request missing evidence.')
+                raise PydanticCustomError('conclusive_assessment_requests_search', 'A conclusive assessment cannot request missing evidence.')
         elif self.follow_up_query is not None:
-            raise ValueError('A search query requires an evidence gap.')
+            raise PydanticCustomError('query_without_gap', 'A search query requires an evidence gap.')
         return self
 
     @field_validator('limitations')
@@ -69,6 +70,21 @@ class Assessment(StrictModel):
         if any(not value or len(value) > 1000 for value in values):
             raise ValueError('Each limitation must contain 1-1000 characters.')
         return values
+
+
+def assessment_response_schema() -> dict:
+    """Express cross-field search rules in the provider schema as well as Python."""
+    schema = Assessment.model_json_schema()
+    schema['required'] = list(schema['properties'])
+    schema['anyOf'] = [
+        {'properties': {'needs_more_evidence': {'const': False},
+                        'follow_up_query': {'type': 'null'}}},
+        {'properties': {'needs_more_evidence': {'const': True},
+                        'support': {'enum': ['partially_supported', 'insufficient_evidence']},
+                        'missing_information': {'type': 'string', 'minLength': 5, 'maxLength': 1000},
+                        'follow_up_query': {'type': 'string', 'minLength': 5, 'maxLength': 500}}},
+    ]
+    return schema
 
 
 class ReviewResult(StrictModel):

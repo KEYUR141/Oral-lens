@@ -1,6 +1,6 @@
 # Oral-lens documentation
 
-Updated: 29 October 2026, Asia/Kolkata. These documents are the repository's design specification. They describe planned behavior unless explicitly marked implemented. They do not establish organizer approval or claim clinical validation.
+Updated: 1 November 2026, Asia/Kolkata. These documents are the repository's design specification. They describe planned behavior unless explicitly marked implemented. They do not establish organizer approval or claim clinical validation.
 
 ## Product and primary user
 
@@ -14,6 +14,10 @@ The useful result is an editable evidence brief containing a study comparison, s
 
 | Document | Purpose |
 | --- | --- |
+| [submission_package.md](submission_package.md) | Form-ready project copy, originality disclosure, verified evidence, timed demo script, and final submission checklist |
+| [hackathon_execution_plan.md](hackathon_execution_plan.md) | Master scope, priorities, milestone acceptance criteria, demo plan, Codex protocol, and task prompt templates |
+| [session_threads.md](session_threads.md) | Thread history, selectable execution tree, focused evidence inspector and local-storage limits |
+| [interface_validation.md](interface_validation.md) | Real-paper interface walkthrough, three live cases, startup checks and live validation results |
 | [workflow_lesson_02.md](workflow_lesson_02.md) | Conditional follow-up search, fixed corpus scope, deduplication, budgets and assessment history |
 | [frontend_demo.md](frontend_demo.md) | Product/presentation views, live API wiring, source-checked population statistics and CLI comparison |
 | [workflow_lesson_01.md](workflow_lesson_01.md) | First LangGraph implementation, quiz feedback, code walkthrough, API usage and verification limits |
