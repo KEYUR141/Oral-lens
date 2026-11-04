@@ -9,9 +9,9 @@ type PaperMeta = { id: number; paper_id: string; title: string; source: string; 
 type Manifest = { sources: Record<string, Source>; points: Point[]; meta: PaperMeta[] }
 
 const mapColors: Record<string, string> = {
-  abstract: '#8ca9ff',
-  fulltext: '#54a9f7',
-  figure_captions: '#69d5db',
+  abstract: '#9d9bff',
+  fulltext: '#55b7ff',
+  figure_captions: '#65dfd0',
 }
 
 function validManifest(value: unknown): value is Manifest {
@@ -28,12 +28,37 @@ function validManifest(value: unknown): value is Manifest {
       && typeof item.paper_id === 'string' && typeof item.snippet === 'string')
 }
 
-export function CorpusMap() {
+export function CorpusMap({ onClose }: { onClose: () => void }) {
   const hostRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [selected, setSelected] = useState<PaperMeta | null>(null)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
+  const [rotating, setRotating] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+
+  useEffect(() => {
+    const priorFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const priorOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') { event.stopPropagation(); onClose() }
+      if (event.key !== 'Tab') return
+      const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.corpus-map-overlay button:not(:disabled)'))
+      const first = buttons[0]
+      const last = buttons.at(-1)
+      if (event.shiftKey && document.activeElement === first && last) { event.preventDefault(); last.focus() }
+      if (!event.shiftKey && document.activeElement === last && first) { event.preventDefault(); first.focus() }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = priorOverflow
+      priorFocus?.focus()
+    }
+  }, [onClose])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -53,6 +78,10 @@ export function CorpusMap() {
   }, [retry])
 
   useEffect(() => {
+    if (controlsRef.current) controlsRef.current.autoRotate = rotating
+  }, [rotating])
+
+  useEffect(() => {
     const host = hostRef.current
     const data = manifest
     if (!data || !host) return
@@ -65,40 +94,52 @@ export function CorpusMap() {
     }
 
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
-    renderer.setClearColor('#111b2b')
     host.appendChild(renderer.domElement)
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 100)
+    scene.background = new THREE.Color('#0c1627')
+    scene.fog = new THREE.FogExp2('#0c1627', 0.018)
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100)
     const geometry = new THREE.BufferGeometry()
-    const positions = new Float32Array(manifest.points.length * 3)
-    const colors = new Float32Array(manifest.points.length * 3)
-    const sourceById = new Map(Object.entries(manifest.sources).map(([name, source]) => [source.id, name]))
-    manifest.points.forEach((point, index) => {
+    const positions = new Float32Array(data.points.length * 3)
+    const colors = new Float32Array(data.points.length * 3)
+    const sourceById = new Map(Object.entries(data.sources).map(([name, source]) => [source.id, name]))
+    data.points.forEach((point, index) => {
       positions.set(point.slice(0, 3), index * 3)
       const name = sourceById.get(point[3]) ?? 'abstract'
-      new THREE.Color(mapColors[name] ?? '#8ca9ff').toArray(colors, index * 3)
+      new THREE.Color(mapColors[name] ?? '#9d9bff').toArray(colors, index * 3)
     })
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    const material = new THREE.PointsMaterial({ size: 0.075, sizeAttenuation: true,
-      vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false })
+    const material = new THREE.PointsMaterial({ size: 0.105, sizeAttenuation: true,
+      vertexColors: true, transparent: true, opacity: 0.92, depthWrite: false })
     const cloud = new THREE.Points(geometry, material)
     scene.add(cloud)
-    const center = new THREE.Vector3()
-    const radii = manifest.points.map(point => Math.hypot(point[0], point[1], point[2])).sort((a, b) => a - b)
+    const grid = new THREE.GridHelper(9, 18, '#284567', '#203451')
+    grid.position.y = -3.3
+    grid.material.transparent = true
+    grid.material.opacity = 0.35
+    scene.add(grid)
+
+    const radii = data.points.map(point => Math.hypot(point[0], point[1], point[2])).sort((a, b) => a - b)
     const radius = radii[Math.floor(radii.length * 0.95)] ?? 2.4
     const controls = new OrbitControls(camera, renderer.domElement)
+    controlsRef.current = controls
     controls.enableDamping = true
     controls.enablePan = false
-    controls.target.copy(center)
+    controls.autoRotate = rotating
+    controls.autoRotateSpeed = 0.35
+    controls.minDistance = radius * 1.1
+    controls.maxDistance = radius * 8
+    let framed = false
     const resize = () => {
       const width = Math.max(1, host.clientWidth)
       const height = Math.max(1, host.clientHeight)
       camera.aspect = width / height
-      const distance = Math.max(4, radius * 2.2 / Math.min(1, camera.aspect))
-      camera.position.set(center.x, center.y, center.z + distance)
-      controls.minDistance = distance * 0.4
-      controls.maxDistance = distance * 3
+      if (!framed) {
+        const distance = Math.max(4, radius * 2.3 / Math.min(1, camera.aspect))
+        camera.position.copy(new THREE.Vector3(0.7, 0.42, 1).normalize().multiplyScalar(distance))
+        framed = true
+      }
       camera.updateProjectionMatrix()
       renderer.setSize(width, height, false)
       controls.update()
@@ -108,19 +149,25 @@ export function CorpusMap() {
     resize()
 
     const raycaster = new THREE.Raycaster()
-    raycaster.params.Points.threshold = 0.11
+    raycaster.params.Points.threshold = 0.14
+    const pointer = new THREE.Vector2()
     const pointMeta = data.meta
-    function selectPoint(event: MouseEvent) {
+    function inspectPoint(event: PointerEvent | MouseEvent) {
       const rect = renderer.domElement.getBoundingClientRect()
-      const pointer = new THREE.Vector2(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        -((event.clientY - rect.top) / rect.height) * 2 + 1,
-      )
+      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1)
       raycaster.setFromCamera(pointer, camera)
       const hit = raycaster.intersectObject(cloud, false)[0]
-      if (hit && hit.index !== undefined) setSelected(pointMeta[hit.index])
+      renderer.domElement.style.cursor = hit ? 'pointer' : 'grab'
+      if (event.type === 'click' && hit?.index !== undefined) setSelected(pointMeta[hit.index])
     }
-    renderer.domElement.addEventListener('click', selectPoint)
+    function stopRotation() {
+      controls.autoRotate = false
+      setRotating(false)
+    }
+    renderer.domElement.addEventListener('pointermove', inspectPoint)
+    renderer.domElement.addEventListener('pointerdown', stopRotation)
+    renderer.domElement.addEventListener('click', inspectPoint)
     let frame = 0
     const animate = () => {
       frame = window.requestAnimationFrame(animate)
@@ -131,23 +178,43 @@ export function CorpusMap() {
     return () => {
       window.cancelAnimationFrame(frame)
       observer.disconnect()
-      renderer.domElement.removeEventListener('click', selectPoint)
+      renderer.domElement.removeEventListener('pointermove', inspectPoint)
+      renderer.domElement.removeEventListener('pointerdown', stopRotation)
+      renderer.domElement.removeEventListener('click', inspectPoint)
+      controlsRef.current = null
       controls.dispose()
       geometry.dispose()
       material.dispose()
+      grid.geometry.dispose()
+      grid.material.dispose()
       renderer.dispose()
       renderer.domElement.remove()
     }
   }, [manifest])
 
   const sources = manifest ? Object.entries(manifest.sources).sort((a, b) => a[1].id - b[1].id) : []
-  return <div className="corpus-map">
-    <div className="corpus-map-frame"><div ref={hostRef} className="corpus-map-canvas" role="img" aria-label="3D projection of corpus embeddings; drag to rotate, scroll to zoom, click a point to inspect it" />
-      {!manifest && !error && <p className="corpus-map-status" role="status">Loading corpus map...</p>}
-      {error && <div className="corpus-map-status" role="alert"><p>{error}</p><button className="secondary" onClick={() => { setError(''); setRetry(value => value + 1) }}>Retry</button></div>}
-      <div className="corpus-map-count">{manifest ? `${manifest.points.length.toLocaleString()} corpus points` : 'Corpus map'}</div>
+  const sourceCounts = new Map<number, number>()
+  manifest?.points.forEach(point => sourceCounts.set(point[3], (sourceCounts.get(point[3]) ?? 0) + 1))
+
+  return <div className="corpus-map-overlay" role="dialog" aria-modal="true" aria-labelledby="corpus-map-title">
+    <header className="corpus-map-header">
+      <div><p className="eyebrow">ORAL-LENS / INHERITED CORPUS</p><h2 id="corpus-map-title">Explore the <span>evidence space.</span></h2></div>
+      <button ref={closeRef} className="corpus-map-close" type="button" onClick={onClose} aria-label="Close corpus map">Close <span aria-hidden="true">×</span></button>
+    </header>
+    <div className="corpus-map-stage">
+      <div className="corpus-map-frame">
+        <div ref={hostRef} className="corpus-map-canvas" role="img" aria-label="3D projection of corpus embeddings; drag to rotate, scroll to zoom, click a point to inspect it" />
+        {!manifest && !error && <p className="corpus-map-status" role="status">Loading corpus map...</p>}
+        {error && <div className="corpus-map-status" role="alert"><p>{error}</p><button className="secondary" onClick={() => { setError(''); setRetry(value => value + 1) }}>Retry</button></div>}
+        <span className="corpus-map-count">{manifest ? `${manifest.points.length.toLocaleString()} corpus points` : 'Corpus map'}</span>
+        <div className="corpus-map-controls"><span>Drag to rotate · Scroll to zoom · Select a point</span><button type="button" onClick={() => setRotating(value => !value)} aria-pressed={rotating}>{rotating ? 'Pause rotation' : 'Rotate view'}</button></div>
+      </div>
+      <aside className="corpus-map-inspector" aria-label="Map details">
+        <div className="corpus-map-intro"><p className="eyebrow">MAP READING</p><p>Each point is a stored abstract, full-text excerpt or figure caption. Nearby points are close in this UMAP projection; proximity does not establish scientific agreement.</p></div>
+        <div className="corpus-map-legend"><p className="eyebrow">SOURCE TYPES</p>{sources.map(([name, source]) => <div key={name}><span><i style={{ background: mapColors[name] ?? '#9d9bff' }} />{source.label}</span><strong>{sourceCounts.get(source.id)?.toLocaleString() ?? '0'}</strong></div>)}</div>
+        <div className="corpus-map-selection" aria-live="polite"><p className="eyebrow">{selected ? 'SELECTED CORPUS POINT' : 'SELECT A POINT'}</p>{selected ? <><h3>{selected.title}</h3><p className="corpus-map-source">{selected.source.replaceAll('_', ' ')} · Corpus row #{selected.id}</p><p className="corpus-map-snippet">{selected.snippet ? `Paper abstract preview: ${selected.snippet}` : 'No abstract preview available for this point.'}</p></> : <p>Click a point in the map to inspect its source record.</p>}</div>
+        <p className="corpus-map-provenance">Corpus, embeddings and UMAP coordinates are inherited from the earlier oral cancer project. This presentation is new.</p>
+      </aside>
     </div>
-    <div className="corpus-map-bottom"><div className="corpus-map-legend">{sources.map(([name, source]) => <span key={name}><i style={{ background: mapColors[name] ?? '#8ca9ff' }} />{source.label}</span>)}</div><p>Drag to rotate. Scroll to zoom. Select a point to inspect its paper.</p></div>
-    {selected && <div className="corpus-map-selection" aria-live="polite"><span className="eyebrow">{selected.source.replaceAll('_', ' ')} / CORPUS ROW #{selected.id}</span><h2>{selected.title}</h2><p>{selected.snippet ? `Paper abstract preview: ${selected.snippet}` : 'No abstract preview available for this point.'}</p></div>}
   </div>
 }
