@@ -9,6 +9,7 @@ It is a literature-research tool. It does not accept patient cases or provide di
 Ordinary retrieval chat can produce fluent answers while hiding whether the selected papers actually support a statement. Oral-lens keeps the review process inspectable:
 
 - retrieval is restricted to papers selected by the reviewer;
+- retrieval allocates a passage per selected paper when the evidence budget permits, and identifies papers with no returned passage;
 - exact passages retain local source identity and hashes;
 - Meta returns a typed assessment with limitations and cited passage IDs;
 - Python checks cited IDs and exact quotations before displaying the draft;
@@ -152,11 +153,12 @@ npm.cmd run build
 
 Submission audit on 4 November 2026:
 
-- 70 backend tests passed;
+- 72 backend tests passed after the selected-paper coverage update;
 - session-history and execution-tree checks passed;
 - TypeScript and the Vite production build passed;
 - `.env` and `.env.meta` were confirmed ignored;
 - Meta configuration was detected locally without sending a request.
+- A read-only two-paper retrieval check returned passages from both selected papers.
 
 These checks establish software behavior covered by the tests. They are not clinical validation or a scientific-quality benchmark.
 

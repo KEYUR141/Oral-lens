@@ -46,6 +46,9 @@ def test_no_new_evidence_stops_without_reassessment(second):
     assert result.search_history[1]['new_passage_ids'] == []
     assert generate.call_count == 2
     assert search.call_count == 2
+    assert result.search_history[0]['uncovered_paper_ids'] == ['p2']
+    assert result.search_history[1]['uncovered_paper_ids'] == (['p2'] if second else ['p1', 'p2'])
+    assert any('does not establish' in warning for warning in result.warnings)
 
 
 def test_budget_stops_unresolved_second_assessment():

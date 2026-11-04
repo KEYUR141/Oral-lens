@@ -110,7 +110,7 @@ These can support the new product but must not be showcased as newly created hac
 
 ### Important current limitations
 
-- Retrieval can overrepresent one selected paper.
+- Search returns at most six passages. A selected paper can still receive no passage when more than six papers are selected or the local corpus has no usable text for it.
 - Reviewer corrections and authoritative human-review transitions are not persisted.
 - Structured study comparison is not implemented.
 - Traceable export is not implemented.
@@ -195,6 +195,8 @@ Acceptance criteria:
 ### Milestone 1 — Balanced selected-paper retrieval
 
 Priority: highest backend improvement.
+
+Status update, 4 November: implemented and checked with 72 offline tests and one read-only two-paper database query. Coverage is not scientific relevance; see `workflow_lesson_02.md`.
 
 Problem: global top-k similarity can return many passages from one paper and none from another, making a comparison claim impossible even when multiple papers were selected.
 

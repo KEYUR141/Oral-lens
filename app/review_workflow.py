@@ -53,6 +53,18 @@ class IncompleteOutput(ValueError):
     pass
 
 
+def _record_search(result, query, paper_ids, passages, new_ids):
+    uncovered = [paper_id for paper_id in paper_ids
+                 if paper_id not in {passage.paper_id for passage in passages}]
+    result.search_history.append({'query': query, 'paper_ids': list(paper_ids),
+        'returned_passage_ids': [passage.passage_id for passage in passages],
+        'new_passage_ids': new_ids, 'uncovered_paper_ids': uncovered})
+    if uncovered:
+        result.warnings.append(
+            f'{len(uncovered)} of {len(paper_ids)} selected papers returned no passage in this search. '
+            'This does not establish that the papers lack relevant evidence.')
+
+
 def build_review_graph(search=None, generate=None):
     # Injection points keep tests offline and make each node easy to study.
     search = search or search_literature.invoke
@@ -95,10 +107,8 @@ def build_review_graph(search=None, generate=None):
             ) or len({p.passage_id for p in result.passages}) != len(result.passages):
                 raise ValueError('Retrieval violated scope or budget')
             result.events.append('passages_retrieved')
-            result.search_history.append({'query': result.claim,
-                'paper_ids': list(result.paper_ids),
-                'returned_passage_ids': [p.passage_id for p in result.passages],
-                'new_passage_ids': [p.passage_id for p in result.passages]})
+            _record_search(result, result.claim, result.paper_ids, result.passages,
+                           [p.passage_id for p in result.passages])
             if not result.passages:
                 result.status = 'insufficient_evidence'
                 result.stop_reason = 'no_initial_passages'
@@ -134,10 +144,8 @@ def build_review_graph(search=None, generate=None):
                 else:
                     known[passage.passage_id] = passage
                     new_ids.append(passage.passage_id)
-            result.search_history.append({'query': result.assessment.follow_up_query,
-                'paper_ids': list(state['request'].paper_ids),
-                'returned_passage_ids': [p.passage_id for p in candidates],
-                'new_passage_ids': new_ids})
+            _record_search(result, result.assessment.follow_up_query,
+                           state['request'].paper_ids, candidates, new_ids)
             result.events.append('follow_up_search_completed')
             if not new_ids:
                 result.stop_reason = 'no_new_evidence'

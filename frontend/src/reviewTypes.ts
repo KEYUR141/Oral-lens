@@ -7,7 +7,7 @@ export type Assessment = {
 export type Passage = {
   passage_id: number; paper_id: string; title: string; text: string; source: string; truncated: boolean
 }
-export type Search = { query: string; paper_ids: string[]; returned_passage_ids: number[]; new_passage_ids: number[] }
+export type Search = { query: string; paper_ids: string[]; returned_passage_ids: number[]; new_passage_ids: number[]; uncovered_paper_ids?: string[] }
 export type Review = {
   claim: string; paper_ids: string[]; status: string; human_review: string; source_validation: string
   assessment: Assessment | null; assessment_history: Assessment[]; search_history: Search[]

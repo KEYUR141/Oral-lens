@@ -156,6 +156,51 @@ def test_search_read_only_scope_and_exact_excerpt(monkeypatch):
     assert parameters['paper_ids'] == ['p1']
     assert rows[0]['text'] == raw
     assert rows[0]['text_sha256'] == hashlib.sha256(raw.encode()).hexdigest()
+    assert 'PARTITION BY paper_id' in str(sql)
+
+
+def test_search_represents_each_selected_paper_before_filling_budget(monkeypatch):
+    from app import retrieval, review_search
+    rows = [dict(id=index, paper_id='p1', title='First paper', source='fulltext',
+                 chunk_index=index, passage_text=f'First excerpt {index}',
+                 similarity=1 - index / 100) for index in range(1, 7)]
+    rows.append(dict(id=7, paper_id='p2', title='Second paper', source='abstract',
+                     chunk_index=0, passage_text='Second excerpt', similarity=0.2))
+    connection = Mock()
+    connection.execute.return_value.mappings.return_value = rows
+
+    @contextmanager
+    def readonly(**kwargs):
+        assert kwargs == {'read_only': True}
+        yield connection
+
+    monkeypatch.setattr(review_search, 'get_db', readonly)
+    monkeypatch.setattr(retrieval, 'embed_query', lambda query: [0.1] * 768)
+    selected = review_search.search_literature.invoke({
+        'query': 'Compare methods of selected studies', 'paper_ids': ['p1', 'p2'], 'limit': 6})
+    assert [row['passage_id'] for row in selected] == [1, 7, 2, 3, 4, 5]
+    assert len({row['paper_id'] for row in selected}) == 2
+    assert selected[1]['text_sha256'] == hashlib.sha256(b'Second excerpt').hexdigest()
+
+
+def test_search_more_papers_than_budget_chooses_best_one_per_paper(monkeypatch):
+    from app import retrieval, review_search
+    rows = [dict(id=index, paper_id=f'p{index}', title=f'Paper {index}',
+                 source='abstract', chunk_index=0, passage_text=f'Excerpt {index}',
+                 similarity=1 - index / 100) for index in range(1, 9)]
+    connection = Mock()
+    connection.execute.return_value.mappings.return_value = list(reversed(rows))
+
+    @contextmanager
+    def readonly(**kwargs):
+        yield connection
+
+    monkeypatch.setattr(review_search, 'get_db', readonly)
+    monkeypatch.setattr(retrieval, 'embed_query', lambda query: [0.1] * 768)
+    selected = review_search.search_literature.invoke({
+        'query': 'Compare selected research studies',
+        'paper_ids': [f'p{index}' for index in range(1, 9)], 'limit': 6})
+    assert [row['paper_id'] for row in selected] == [f'p{index}' for index in range(1, 7)]
 
 
 def test_search_rejects_budget_before_execution():

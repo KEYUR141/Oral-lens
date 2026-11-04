@@ -18,7 +18,8 @@ export function isReview(value: unknown): value is Review {
     && (value.assessment === null || assessment(value.assessment))
     && Array.isArray(value.assessment_history) && value.assessment_history.every(assessment)
     && Array.isArray(value.search_history) && value.search_history.every(s => object(s)
-      && typeof s.query === 'string' && strings(s.paper_ids) && numbers(s.returned_passage_ids) && numbers(s.new_passage_ids))
+      && typeof s.query === 'string' && strings(s.paper_ids) && numbers(s.returned_passage_ids)
+      && numbers(s.new_passage_ids) && (s.uncovered_paper_ids === undefined || strings(s.uncovered_paper_ids)))
     && Array.isArray(value.passages) && value.passages.every(p => object(p) && Number.isInteger(p.passage_id)
       && typeof p.paper_id === 'string' && typeof p.title === 'string' && typeof p.text === 'string'
       && typeof p.source === 'string' && typeof p.truncated === 'boolean')

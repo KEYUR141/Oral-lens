@@ -57,3 +57,7 @@ The model's proposed query is fallible. A filtered search cannot execute instruc
 ## Live follow-up and format repair: 30 October 2026
 
 The shared workflow completed a real two-search comparison run: one new passage on follow-up, then insufficient_evidence/search_budget_exhausted. The review calls now use Meta-native JSON-schema response_format, including cross-field gap/query constraints; Python checks remain independent. Schema echoes and inconsistent model proposals encountered during validation were retained as failures. See [interface validation](interface_validation.md) for transport distinctions and retrieval-coverage limits; the earlier unverified status describes implementation day. Native model tool calling is still not implemented.
+
+## Selected-paper coverage: 4 November 2026
+
+The retrieval query now ranks a bounded candidate set within each selected paper. Python takes one candidate from each paper when the six-passage budget allows, then fills remaining slots by similarity with deterministic tie breaks. With more than six selected papers, the six strongest first candidates are returned; selected papers that received no passage are recorded under `uncovered_paper_ids` for each search. The interface shows their titles in the search inspector. Coverage is a retrieval allocation rule, not a statement that the passage is relevant or the claim is supported. A paper without a returned passage may have text outside the current retrieval budget or text unavailable in the local corpus.

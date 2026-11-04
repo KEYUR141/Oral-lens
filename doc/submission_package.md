@@ -73,13 +73,14 @@ The participant's earlier Oral Cancer X project supplied the FastAPI/PostgreSQL/
 
 ## Verified evidence
 
-- 70 offline backend tests passed on 4 November 2026.
+- 72 offline backend tests passed on 4 November 2026 after the selected-paper coverage update.
 - Frontend session-history/execution-tree checks passed.
 - TypeScript and the Vite production build passed.
 - A live supported claim completed with one search and passing source checks.
 - A live missing-detail claim completed two searches, detected repeated evidence, and stopped with `no_new_evidence` and `insufficient_evidence`.
 - A live two-paper comparison added a second-search passage and stopped with `search_budget_exhausted` and `insufficient_evidence`.
 - The connected corpus was inspected read-only: 146 papers and 4,666 passage rows.
+- A read-only retrieval check with the previous two-paper example returned passages from both selected papers; this is a coverage check, not a scientific-quality result.
 
 These observations verify specific software paths. They are not a clinical validation or a scientific-quality benchmark.
 
@@ -88,7 +89,7 @@ These observations verify specific software paths. They are not a clinical valid
 - No public hosted application is included; the demo runs locally.
 - Review results are drafts and thread history is browser-local.
 - Durable researcher corrections, structured study comparison, and reviewed export are not implemented.
-- Retrieval can overrepresent one selected paper in multi-paper claims.
+- A search returns at most six passages, so more than six selected papers cannot all be represented in one search; coverage is not semantic relevance.
 - Browser automation and a scientific-quality evaluation set are not included.
 - Corpus/source redistribution rights and the organizer's interpretation of Indie reuse remain separate submission considerations.
 
