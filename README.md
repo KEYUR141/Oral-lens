@@ -43,6 +43,7 @@ The event-built product work includes:
 - a CLI that runs the same review workflow as the HTTP API;
 - a React product workspace with paper selection, review threads, an execution tree, and focused evidence inspection;
 - a separate presentation view for the problem, workflow, and live-product handoff;
+- a themed in-page Three.js presentation of the inherited corpus projection;
 - offline backend and frontend behavioral checks.
 
 See the [contribution manifest](doc/contribution_manifest.md) for dates, paths, classifications, verification evidence, and limitations.

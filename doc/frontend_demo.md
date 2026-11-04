@@ -66,7 +66,7 @@ Live PDF contents were checked rather than relying on older search-index snippet
 
 The research task is framed as our design hypothesis. There is no fabricated user study, quantified workload estimate, demonstrated time saving or mortality-reduction claim. Population burden motivates the context; it does not establish product impact.
 
-The optional map link is explicitly inherited functionality. Newly built graph/source checks and React interface are identified separately. Saved corrections, study comparison and export remain planned. Keep the final hackathon feature showcase focused on verified new work.
+The live-product chapter now opens an embedded React/Three.js corpus map within the same charcoal-and-blue presentation. It fetches the existing `/visualize/manifest` through the Vite API proxy. The corpus, embeddings, UMAP coordinates and original map are inherited; the themed React rendering and in-page interaction were added on 4 November. The map panel labels abstract previews accurately and reports an unavailable manifest or WebGL failure instead of showing an empty result. Saved corrections, study comparison and export remain planned. Keep the final hackathon feature showcase focused on verified new work.
 
 ## Learning notes and check
 
@@ -80,4 +80,4 @@ Try answering:
 
 ## Verification
 
-TypeScript/production build and server-rendered content checks for both modes pass. No frontend dependencies added. Browser automation was unavailable, so browser layout, keyboard/fullscreen interactions, clipboard and live UI-to-Meta completion are not yet verified. No API credits or database writes were used by this frontend task. See the contribution manifest for attribution.
+TypeScript/production build and server-rendered content checks for both modes pass. The embedded map uses the already installed Three.js dependency. The backend manifest route returned 4,666 points in a read-only local check. A local headless Chrome check confirmed WebGL rendering in the themed slide and click-to-inspect for a corpus point. Keyboard/fullscreen interactions, clipboard and live UI-to-Meta completion remain unverified. No API credits or database writes were used by this frontend task. See the contribution manifest for attribution.

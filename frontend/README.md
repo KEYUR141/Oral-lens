@@ -1,6 +1,6 @@
 # Oral-lens frontend
 
-React + TypeScript + Vite local demo, with product and presentation views. Product connects to the first draft claim-review API; presentation introduces the problem with sourced statistics. Three.js is installed; the inherited backend visualization remains separate. See [demo walkthrough and sources](../doc/frontend_demo.md).
+React + TypeScript + Vite local demo, with product and presentation views. Product connects to the first draft claim-review API; presentation introduces the problem with sourced statistics. Its embedded Three.js corpus map reads the inherited UMAP manifest from the backend and stays within the Oral-lens theme. See [demo walkthrough and sources](../doc/frontend_demo.md).
 
 The Product view now uses a review-thread workspace with browser-local history, a clickable execution tree and a focused source inspector. See [thread walkthrough](../doc/session_threads.md). History survives refresh when localStorage is available; it is not server persistence or conversational model memory. Run `npm.cmd run test:session` for offline history/tree checks.
 
@@ -24,7 +24,7 @@ Vite proxies `/api/*` to FastAPI on port 8000, removing the `/api` prefix. Corpu
 ## Dependencies and checks
 
 - React and React DOM: UI foundation.
-- Three.js: installed as `three`; import it from `three` when adding a scene.
+- Three.js: renders the embedded corpus map only when the map view is opened.
 - TypeScript, React/Three.js types, and Vite: typed development and build.
 - `package-lock.json`: npm dependency lock; use `npm ci` for repeatable installation.
 - `npm run build`: TypeScript check and production bundle.
