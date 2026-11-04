@@ -4,7 +4,7 @@ Implemented 29 October 2026. Local React/TypeScript frontend; no deployment or n
 
 ## Visual references
 
-The two participant-supplied screenshots in `frontend/reference_designs` guide the implementation: the Meta page's charcoal surfaces, large sans-serif type, rounded buttons/panels and blue accents; the second reference's faint grid and vertical chapter markers. The screenshots remain reference material, not published background images. No Meta logo or official endorsement is claimed. The product uses the Oral-lens name.
+The two participant-supplied screenshots in `frontend/reference_designs` guide the implementation: the Meta page's charcoal surfaces, large sans-serif type, rounded buttons/panels and blue accents; the second reference's faint grid and chapter markers. The chapter dots now sit on one horizontal line above the slide, and the grid uses longer, more visible 72-pixel cells. The screenshots remain reference material, not published background images. No Meta logo or official endorsement is claimed. The product uses the Oral-lens name.
 
 ## Run the two views
 
@@ -53,7 +53,7 @@ Compare status, assessment, citations and errors, allowing for model variability
 
 ## Presentation content and sources
 
-Four chapters cover disease burden, the research-literature task, the implemented workflow, and the live-product handoff. Previous/next, chapter buttons, arrow keys when focus is outside interactive controls, and an optional browser fullscreen control are available. Responsive layouts and reduced-motion preferences are supported in CSS; visual browser validation remains pending.
+Four chapters cover disease burden, the research-literature task, the implemented workflow, and the live-product handoff. Previous/next, chapter buttons, arrow keys when focus is outside interactive controls, and an optional browser fullscreen control are available. Responsive layouts and reduced-motion preferences are supported in CSS. Desktop and mobile presentation layouts were checked locally in headless Chrome.
 
 Statistics are estimates for **2024, both sexes, all ages, lip and oral cavity**. They must not be described as current daily death counts, all head and neck cancers, or prevented deaths attributable to Oral-lens.
 
