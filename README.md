@@ -12,6 +12,7 @@
 [![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F5C518?style=for-the-badge)](LICENSE)
 
 [Problem](#the-problem) · [Product](#see-the-product) · [Workflow](#how-a-review-works) · [Architecture](#architecture) · [Run locally](#run-locally) · [Evidence](#verification)
 
@@ -276,6 +277,12 @@ npm.cmd run build
 | [Local setup](doc/local_setup.md) | Environment, database, and runtime instructions |
 | [Meta setup](doc/meta_setup.md) | Provider configuration and smoke testing |
 | [Hackathon rules](doc/hackathon_rules.md) | Supplied rules, judging rubric, and submission checks |
+
+## License
+
+Unless a file states otherwise, the source code and original project documentation in this repository are available under the [MIT License](LICENSE).
+
+The license does not grant rights to third-party research papers, extracted paper text, corpus records, model weights or artifacts, dependency packages, external trademarks, or other third-party material. Those items remain subject to their respective terms and rights. Local corpus and model artifacts are excluded from Git; see the [import manifest](doc/import_manifest.json) for the recorded boundary.
 
 ---
 
