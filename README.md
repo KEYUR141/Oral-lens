@@ -1,89 +1,187 @@
 # Oral-lens
 
-Oral-lens is a Meta-powered evidence-review workspace for oral cancer researchers and student literature reviewers. A reviewer selects papers, enters a research claim, and receives a source-linked draft assessment that can explicitly stop with insufficient evidence.
+<div align="center">
 
-It is a literature-research tool. It does not accept patient cases or provide diagnosis, screening, prognosis, treatment recommendations, or medical advice.
+### From a research claim to an inspectable evidence trail
 
-## Why it exists
+**A Meta-powered literature-review workspace for oral cancer researchers and student reviewers.**
 
-Ordinary retrieval chat can produce fluent answers while hiding whether the selected papers actually support a statement. Oral-lens keeps the review process inspectable:
+[![Meta Model API](https://img.shields.io/badge/Meta_Model_API-Muse_Spark_1.3-0668E1?style=for-the-badge&logo=meta&logoColor=white)](https://dev.meta.ai/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.x-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Bounded_Workflow-1C3C3C?style=for-the-badge)](https://docs.langchain.com/oss/python/langgraph/overview)
+[![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-pgvector-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://github.com/pgvector/pgvector)
 
-- retrieval is restricted to papers selected by the reviewer;
-- retrieval allocates a passage per selected paper when the evidence budget permits, and identifies papers with no returned passage;
-- exact passages retain local source identity and hashes;
-- Meta returns a typed assessment with limitations and cited passage IDs;
-- Python checks cited IDs and exact quotations before displaying the draft;
-- a bounded LangGraph workflow may run one focused follow-up search;
+[Problem](#the-problem) · [Product](#see-the-product) · [Workflow](#how-a-review-works) · [Architecture](#architecture) · [Run locally](#run-locally) · [Evidence](#verification)
+
+</div>
+
+> [!IMPORTANT]
+> Oral-lens supports **literature research**. It does not accept patient cases or provide diagnosis, screening, prognosis, treatment recommendations, or medical advice. Every model assessment is an unreviewed draft.
+
+## The problem
+
+A fluent literature answer can still overstate its sources. Reviewers must determine whether a claim is supported by the papers they selected, which exact passages support it, what information is missing, and whether a follow-up search found anything new.
+
+Basic retrieval chat usually hides that process behind one answer box. Oral-lens keeps it visible:
+
+- the reviewer chooses the paper scope;
+- retrieval stays inside that scope and exposes uncovered papers;
+- Meta returns a typed assessment with cited passage IDs and limitations;
+- Python validates the cited IDs and exact quotations;
+- one bounded follow-up search can target a specific evidence gap;
 - repeated or unavailable evidence produces an explicit stopping reason;
-- the interface separates model assessment, mechanical source checks, and human-review status;
-- browser-local threads preserve the original claim, paper scope, results, and execution trace.
+- model assessment, mechanical source checks, and human review remain separate.
 
-Source validation does not prove scientific correctness. Results remain unreviewed drafts, and missing evidence in the inspected excerpts does not prove that evidence is absent from the full paper or wider literature.
+## See the product
 
-## Working demo flow
+### Browse the existing corpus and choose the scope
 
-1. Search the connected corpus and select up to ten papers.
-2. Enter a literature claim or comparison question.
-3. Inspect the scope check, selected-paper retrieval, Meta assessment, source checks, and any bounded follow-up search.
-4. Open the exact passages cited by the assessment.
-5. Review the terminal state, limitations, and unresolved evidence gaps.
-6. Revisit prior runs through browser-local thread history and the execution tree.
+Reviewers can browse titles, search stored document content, preview stored excerpts, and manually select up to ten papers. Search suggestions never become evidence automatically.
 
-The current MVP does not persist researcher corrections to the server, generate a reviewed export, or claim systematic-review coverage.
+![Oral-lens paper library with title browsing, document search, manual selection, and execution-tree preview](output_ss/paper-library.png)
 
-## New hackathon work
+### Follow the completed review
 
-The event-built product work includes:
+Each run is preserved as a browser-local thread. The execution tree exposes scope classification, searches, new passages, the Meta draft, source checks, and the terminal state. Selecting a node opens its real run data and source text.
 
-- a shared Meta Model API client with bounded requests, structured-output support, and sanitized failures;
-- typed claim-review schemas and native JSON-schema constraints;
-- a read-only selected-paper retrieval tool;
-- a LangGraph workflow for scope checking, retrieval, assessment, source validation, and bounded follow-up search;
-- explicit insufficient-evidence, repeated-evidence, validation-failure, and budget-exhaustion states;
-- a CLI that runs the same review workflow as the HTTP API;
-- a React product workspace with paper selection, review threads, an execution tree, and focused evidence inspection;
-- a separate presentation view for the problem, workflow, and live-product handoff;
-- a themed in-page Three.js presentation of the inherited corpus projection;
-- offline backend and frontend behavioral checks.
+![Completed Oral-lens evidence review with selected papers, Meta draft, execution tree, source checks, and human-review status](output_ss/evidence-review.png)
 
-See the [contribution manifest](doc/contribution_manifest.md) for dates, paths, classifications, verification evidence, and limitations.
+<details>
+<summary><strong>See the corpus inventory and presentation workflow</strong></summary>
 
-## Inherited foundation
+The presentation starts with source-linked 2024 estimates for lip and oral cavity cancer. These population figures establish research context; they are not a measured outcome of Oral-lens.
 
-Oral-lens builds on the participant's earlier [Oral Cancer X](https://github.com/KEYUR141/Oral-Cancer-X-AI-Integrated-Solution) project. The inherited foundation includes the FastAPI/PostgreSQL/pgvector corpus infrastructure, ingestion and embedding foundations, local paper data, and the historical 3D visualization.
+![Oral-lens research context showing source-linked 2024 lip and oral cavity cancer estimates](output_ss/research-context.png)
 
-Those components are disclosed as inherited and are not presented as new hackathon functionality. The exact source baseline and imported-file hashes are recorded in [the import manifest](doc/import_manifest.json).
+The connected read-only corpus contains 146 papers and 4,666 stored rows. Row counts describe stored abstracts and extracted passages; they do not measure paper completeness or scientific validity.
+
+![Read-only Oral-lens corpus inventory showing paper and stored-row coverage](output_ss/corpus-inventory.png)
+
+The presentation mode explains the implemented review in four steps.
+
+![Oral-lens presentation showing the bounded inspectable review workflow](output_ss/bounded-workflow.png)
+
+</details>
+
+## How a review works
+
+```mermaid
+flowchart LR
+    U[Reviewer selects papers<br/>and enters a claim] --> S[Scope check]
+    S -->|Literature research| R[Selected-paper retrieval]
+    S -->|Medical advice or<br/>patient request| X[Stop: out of scope]
+    R --> M[Meta typed assessment]
+    M -->|Evidence sufficient| V[Validate passage IDs<br/>and exact quotes]
+    M -->|Specific evidence gap| Q[Meta proposes one<br/>focused query]
+    Q --> G{Python guardrails}
+    G -->|Same paper scope<br/>and budget available| R2[One follow-up search]
+    G -->|Invalid or exhausted| I[Stop: insufficient evidence]
+    R2 -->|New passages| M2[Meta reassessment]
+    R2 -->|Repeated or no evidence| I
+    M2 --> V
+    V --> O[Inspectable draft<br/>awaiting human review]
+```
+
+The model reasons about the claim and available passages. The application controls retrieval scope, call budgets, passage identity, validation, and terminal states. The graph performs at most **two searches and three Meta calls**.
+
+### What the reviewer can inspect
+
+| Layer | What Oral-lens shows | What it does not claim |
+| --- | --- | --- |
+| Retrieval | Exact stored excerpts, paper identity, source type, local passage ID | That similarity proves scientific relevance |
+| Meta assessment | Support status, explanation, cited passages, limitations, evidence gap | That a model response is scientific truth |
+| Source checks | Whether cited IDs exist and quotes occur in their referenced excerpts | That matching text semantically proves the claim |
+| Human review | Explicit `not reviewed` or reviewer-controlled state | Automatic expert approval |
+
+## Why Meta is central
+
+Oral-lens uses **Muse Spark 1.3 through Meta Model API** for:
+
+1. research-scope classification before retrieval;
+2. JSON-schema constrained claim assessment;
+3. identifying the exact missing information;
+4. proposing a focused follow-up query; and
+5. reassessing the claim after new passages are returned.
+
+This is not a provider label on top of retrieval. Meta drives the evidence-gap decision inside the graph, while deterministic application code decides whether any proposed search is allowed and verifies the returned citations.
 
 ## Architecture
 
-```text
-React + TypeScript
-        |
-        v
-FastAPI review API
-        |
-        v
-Bounded LangGraph workflow
-   |                 |
-   v                 v
-Meta Model API   LangChain retrieval tool
-                         |
-                         v
-                 PostgreSQL + pgvector
+```mermaid
+flowchart TB
+    subgraph Client[React + TypeScript]
+        UI[Paper library and claim composer]
+        TREE[Review threads and execution tree]
+        INSPECT[Passage and run inspector]
+    end
+
+    subgraph API[FastAPI + Pydantic]
+        ROUTES[Typed review and inspection APIs]
+        GRAPH[Bounded LangGraph workflow]
+        CHECKS[Scope, budget, citation and quote checks]
+    end
+
+    subgraph Intelligence[Reasoning and retrieval]
+        META[Meta Model API<br/>Muse Spark 1.3]
+        TOOL[LangChain selected-paper search tool]
+    end
+
+    subgraph Data[Read-only research corpus]
+        PG[(PostgreSQL + pgvector)]
+        CORPUS[146 papers<br/>4,666 stored rows]
+    end
+
+    UI --> ROUTES
+    ROUTES --> GRAPH
+    GRAPH --> META
+    GRAPH --> TOOL
+    GRAPH --> CHECKS
+    TOOL --> PG
+    PG --> CORPUS
+    GRAPH --> TREE
+    CHECKS --> INSPECT
 ```
 
-Python—not the model—controls paper scope, call budgets, passage validation, terminal states, and human-review authority. The connected corpus is accessed read-only by the review workflow.
+| Area | Technology | Responsibility |
+| --- | --- | --- |
+| Interface | React 19, TypeScript, Vite | Paper discovery, local threads, execution tree, evidence inspection, presentation mode |
+| API | FastAPI, Pydantic | Typed request/response contracts and sanitized failures |
+| Orchestration | LangGraph | Explicit nodes, conditional routing, and bounded follow-up |
+| Retrieval tool | LangChain Core | Read-only search restricted to user-selected paper IDs |
+| Model | Meta Model API, Muse Spark 1.3 | Scope classification, structured assessment, evidence-gap reasoning |
+| Corpus | PostgreSQL, pgvector | Stored abstracts, full-text chunks, captions, and embeddings |
+| Environment | uv | Reproducible Python dependency and command workflow |
+| Visualization | Three.js | Themed rendering of the inherited 3D corpus projection |
+
+## Hackathon contribution boundary
+
+Transparent attribution is part of the product story.
+
+| Inherited from the earlier Oral Cancer X project | Built during this hackathon |
+| --- | --- |
+| PostgreSQL/pgvector corpus and local paper data | Meta Model API client and structured-output contracts |
+| Ingestion and embedding foundation | Selected-paper retrieval with coverage reporting |
+| Original FastAPI foundation | Bounded LangGraph review and follow-up workflow |
+| Historical UMAP/3D visualization data | Citation and exact-quotation validation |
+|  | Explicit insufficient/repeated-evidence states |
+|  | Shared CLI and review API |
+|  | React paper library, review threads, execution tree, and evidence inspector |
+|  | Themed in-page corpus view and presentation mode |
+
+The pinned baseline, imported-file hashes, dates, classifications, and verification evidence are in the [contribution manifest](doc/contribution_manifest.md) and [import manifest](doc/import_manifest.json).
 
 ## Run locally
 
-Requirements:
+### Requirements
 
 - Python 3.13 and [uv](https://docs.astral.sh/uv/)
 - Node.js and npm
-- PostgreSQL with pgvector and the configured local corpus
-- a Meta Model API key
+- PostgreSQL with pgvector and the configured corpus
+- Meta Model API credentials
 
-Create an ignored root `.env` from `.env.example`, then set the local database values and:
+Create an ignored `.env` from `.env.example` and configure the database plus:
 
 ```dotenv
 Meta_Muse_API_KEY=
@@ -93,14 +191,14 @@ DB_READ_ONLY=true
 
 Never commit the real `.env`.
 
-Install and start the backend:
+### Start the backend
 
 ```powershell
 uv sync --locked
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-In a second terminal, start the frontend:
+### Start the frontend
 
 ```powershell
 cd frontend
@@ -108,82 +206,83 @@ npm.cmd ci
 npm.cmd run dev
 ```
 
-Open:
+| View | Local URL |
+| --- | --- |
+| Product workspace | `http://127.0.0.1:5173/#product` |
+| Presentation mode | `http://127.0.0.1:5173/#present` |
+| FastAPI documentation | `http://127.0.0.1:8000/docs` |
 
-- Product workspace: `http://127.0.0.1:5173/#product`
-- Presentation mode: `http://127.0.0.1:5173/#present`
-- FastAPI documentation: `http://127.0.0.1:8000/docs`
-
-Submitting a claim uses Meta API credits. Do not enter patient information.
+Submitting a review uses Meta API credits. Do not enter patient information.
 
 ## CLI review
 
-List papers:
+The CLI and HTTP API call the same workflow.
 
 ```powershell
+# Browse papers
 uv run python -m scripts.review_cli papers --limit 12 --search "tongue"
-```
 
-Run an interactive review:
-
-```powershell
+# Run an interactive review
 uv run python -m scripts.review_cli review
-```
 
-Validate input without using the database or Meta API:
-
-```powershell
+# Validate input without the database or Meta API
 uv run python -m scripts.review_cli review --check-only
 ```
 
 ## Verification
 
-Run the offline backend suite:
+The latest repository checks establish covered software behavior, not clinical validity or scientific accuracy.
+
+| Check | Verified result |
+| --- | --- |
+| Backend suite | **74 tests passed** |
+| Frontend session state | History round-trip, interruption, corruption, scope snapshot, and tree checks passed |
+| Frontend build | TypeScript and Vite production build passed |
+| Connected corpus | Read-only inspection returned **146 papers / 4,666 rows** |
+| Supported live path | One search, source checks passed, draft awaiting human review |
+| Missing-detail live path | Two searches, repeated evidence detected, `no_new_evidence`, `insufficient_evidence` |
+| Two-paper retrieval | Returned passages from both selected papers when the six-passage budget permitted |
+| Content discovery | Exact SLC38A1 text match ranked before broader embedding suggestions |
+
+Run the checks locally:
 
 ```powershell
-uv run --locked --offline pytest -q
-```
+uv run pytest -q
 
-Run the frontend checks:
-
-```powershell
 cd frontend
 npm.cmd run test:session
 npm.cmd run build
 ```
 
-Submission audit on 4 November 2026:
+## Current limitations
 
-- 72 backend tests passed after the selected-paper coverage update;
-- session-history and execution-tree checks passed;
-- TypeScript and the Vite production build passed;
-- `.env` and `.env.meta` were confirmed ignored;
-- Meta configuration was detected locally without sending a request.
-- A read-only two-paper retrieval check returned passages from both selected papers.
-
-These checks establish software behavior covered by the tests. They are not clinical validation or a scientific-quality benchmark.
+- The application is demonstrated locally; no public hosted product is included.
+- Review results are drafts and thread history is stored in the browser.
+- Durable researcher corrections, structured study comparison, and reviewed export are future work.
+- Stored excerpts do not provide verified PDF page or document-version provenance.
+- Retrieval quality has not been established with an independently annotated scientific benchmark.
+- The corpus, embeddings, and historical visualization foundation are inherited.
 
 ## Documentation
 
-- [Hackathon execution plan](doc/hackathon_execution_plan.md)
-- [Rules, judging rubric, and submission checklist](doc/hackathon_rules.md)
-- [Current interface validation record](doc/interface_validation.md)
-- [Workflow lesson 1](doc/workflow_lesson_01.md)
-- [Bounded follow-up workflow](doc/workflow_lesson_02.md)
-- [Review threads and execution tree](doc/session_threads.md)
-- [Technology stack](doc/tech_stack.md)
-- [Product differentiation](doc/existing_product_diff.md)
-- [User and AI workflow](doc/flow.md)
-- [Database inventory](doc/database_inventory.md)
-- [Local setup](doc/local_setup.md)
-- [Meta setup](doc/meta_setup.md)
-- [Contribution manifest](doc/contribution_manifest.md)
+| Read this | For |
+| --- | --- |
+| [Submission package](doc/submission_package.md) | Form copy, three-minute demo flow, and final checklist |
+| [Contribution manifest](doc/contribution_manifest.md) | New/inherited classification and verification history |
+| [Workflow specification](doc/flow.md) | User, AI, validation, and failure flows |
+| [Technology stack](doc/tech_stack.md) | Architecture and dependency decisions |
+| [Product differentiation](doc/existing_product_diff.md) | Earlier project versus Oral-lens |
+| [Interface validation](doc/interface_validation.md) | Recorded live paths and known failures |
+| [Local setup](doc/local_setup.md) | Environment, database, and runtime instructions |
+| [Meta setup](doc/meta_setup.md) | Provider configuration and smoke testing |
+| [Hackathon rules](doc/hackathon_rules.md) | Supplied rules, judging rubric, and submission checks |
 
-## Current limitations
+---
 
-- No public hosted deployment is included.
-- Review results and thread history are local drafts; thread history uses browser storage.
-- Researcher corrections, durable revision history, structured study comparison, and reviewed export remain future work.
-- Retrieval quality has not been established through a scientific benchmark.
-- The historical visualization and corpus foundation are inherited.
-- Source redistribution rights and hackathon interpretation of Indie reuse must be handled independently of the software checks.
+<div align="center">
+
+**Oral-lens makes the boundary between a claim, its evidence, and its uncertainty visible.**
+
+Research support only · Human verification required
+
+</div>
